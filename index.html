@@ -159,17 +159,30 @@
       <div id="date-filter-bar" class="space-y-2">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex gap-1 bg-slate-800 p-1 rounded-lg text-xs">
-            <button onclick="setDateFilter('all')" id="df-all" class="px-2.5 py-1 rounded-md font-medium bg-emerald-500 text-slate-950">Todos</button>
-            <button onclick="setDateFilter('today')" id="df-today" class="px-2.5 py-1 rounded-md font-medium text-slate-300">Hoy</button>
+            <button onclick="setDateFilter('today')" id="df-today" class="px-2.5 py-1 rounded-md font-medium bg-emerald-500 text-slate-950">Hoy</button>
             <button onclick="setDateFilter('tomorrow')" id="df-tomorrow" class="px-2.5 py-1 rounded-md font-medium text-slate-300">Mañana</button>
+            <button onclick="setDateFilter('all')" id="df-all" class="px-2.5 py-1 rounded-md font-medium text-slate-300">Todo</button>
           </div>
           <div class="flex items-center gap-1.5">
-            <input type="date" id="calendarFilter" onchange="onCalendarPick()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500" title="Filtrar por fecha exacta">
-            <button id="clearCalBtn" onclick="clearCalendarFilter()" class="hidden text-xs text-rose-400 font-bold px-1.5" title="Quitar fecha">&times;</button>
+            <input type="date" id="calendarFilter" onchange="onCalendarPick()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500" title="Elegir día anterior o fecha exacta">
+            <button id="clearCalBtn" onclick="clearCalendarFilter()" class="hidden text-xs text-rose-400 font-bold px-1.5" title="Volver a Hoy">&times;</button>
           </div>
         </div>
+
+        <div class="flex items-center justify-between gap-2 bg-slate-800/70 border border-slate-700/80 rounded-xl px-2.5 py-1.5">
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="hideCompletedCheck" onchange="onHideCompletedChange()" class="accent-emerald-500 w-3.5 h-3.5 rounded">
+            <span class="text-[11px] font-semibold text-slate-200">Ocultar pagados y entregados</span>
+          </label>
+          <select id="hideCompletedScope" onchange="onHideCompletedChange()" disabled class="bg-slate-900 border border-slate-700 text-slate-300 text-[11px] font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500 disabled:opacity-40">
+            <option value="day">Por día</option>
+            <option value="week">Por semana</option>
+            <option value="month">Por mes</option>
+          </select>
+        </div>
+
         <div class="flex items-center justify-between text-xs text-slate-400">
-          <span id="active-date-label">Mostrando todas las fechas</span>
+          <span id="active-date-label">Fecha: Hoy</span>
           <span id="orders-count" class="font-semibold text-slate-300">0 ítems</span>
         </div>
       </div>
@@ -1007,8 +1020,10 @@ Titular: {titular}
 
     let currentTab = 'pickups';
     let selectedDriver = 'all';
-    let dateFilterMode = 'all';
+    let dateFilterMode = 'today';
     let customDateValue = '';
+    let hideCompletedEnabled = false;
+    let hideCompletedScope = 'day';
     let activeBatchId = null;
     let batchItemCounter = 1;
     let syncInterval = null;
@@ -1316,10 +1331,13 @@ Titular: {titular}
       localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(userObj));
 
       selectedDriver = 'all';
-      dateFilterMode = 'all';
+      dateFilterMode = 'today';
       customDateValue = '';
       if (document.getElementById('calendarFilter')) document.getElementById('calendarFilter').value = '';
       if (document.getElementById('clearCalBtn')) document.getElementById('clearCalBtn').classList.add('hidden');
+      hideCompletedEnabled = localStorage.getItem(`re_u_${userObj.uid}_hide_done_v1`) === 'true';
+      hideCompletedScope = localStorage.getItem(`re_u_${userObj.uid}_hide_scope_v1`) || 'day';
+      syncHideCompletedUI();
       updateDateButtonsUI();
 
       loadUserLocalData(userObj.uid);
@@ -1736,18 +1754,67 @@ Titular: {titular}
     }
 
     function clearCalendarFilter() {
-      setDateFilter('all');
+      setDateFilter('today');
+    }
+
+    function syncHideCompletedUI() {
+      const chk = document.getElementById('hideCompletedCheck');
+      const sel = document.getElementById('hideCompletedScope');
+      if (chk) chk.checked = hideCompletedEnabled;
+      if (sel) {
+        sel.value = hideCompletedScope;
+        sel.disabled = !hideCompletedEnabled;
+      }
+    }
+
+    function onHideCompletedChange() {
+      const chk = document.getElementById('hideCompletedCheck');
+      const sel = document.getElementById('hideCompletedScope');
+      hideCompletedEnabled = !!(chk && chk.checked);
+      hideCompletedScope = sel ? sel.value : 'day';
+      if (sel) sel.disabled = !hideCompletedEnabled;
+      if (currentUser && currentUser.uid) {
+        localStorage.setItem(`re_u_${currentUser.uid}_hide_done_v1`, hideCompletedEnabled ? 'true' : 'false');
+        localStorage.setItem(`re_u_${currentUser.uid}_hide_scope_v1`, hideCompletedScope);
+      }
+      renderAllLists();
+    }
+
+    function isItemHiddenByCompletedFilter(item, kind) {
+      if (!hideCompletedEnabled) return false;
+      const isFullyCompleted = kind === 'delivery'
+        ? (Boolean(item.paid) && Boolean(item.delivered))
+        : Boolean(item.pickedUp);
+      if (!isFullyCompleted) return false;
+
+      const todayStr = getLocalISODate(0);
+      const refDate = (dateFilterMode === 'custom' && customDateValue)
+        ? customDateValue
+        : (dateFilterMode === 'tomorrow' ? getLocalISODate(1) : todayStr);
+
+      if (!item.date) return true;
+      if (hideCompletedScope === 'day') {
+        return item.date === refDate;
+      }
+      if (hideCompletedScope === 'week') {
+        const { startISO, endISO } = getWeekBounds(refDate);
+        return item.date >= startISO && item.date <= endISO;
+      }
+      if (hideCompletedScope === 'month') {
+        return item.date.slice(0, 7) === refDate.slice(0, 7);
+      }
+      return true;
     }
 
     function updateDateButtonsUI() {
-      ['all', 'today', 'tomorrow'].forEach(m => {
+      ['today', 'tomorrow', 'all'].forEach(m => {
         const btn = document.getElementById('df-' + m);
         btn.className = (dateFilterMode === m)
           ? 'px-2.5 py-1 rounded-md font-medium bg-emerald-500 text-slate-950'
           : 'px-2.5 py-1 rounded-md font-medium text-slate-300';
       });
       const label = document.getElementById('active-date-label');
-      if (dateFilterMode === 'all') label.textContent = 'Mostrando todas las fechas';
+      if (dateFilterMode === 'all') label.textContent = 'Mostrando todo (tachados y pendientes)';
       else if (dateFilterMode === 'today') label.textContent = `Fecha: Hoy (${formatDisplayDate(getLocalISODate(0))})`;
       else if (dateFilterMode === 'tomorrow') label.textContent = `Fecha: Mañana (${formatDisplayDate(getLocalISODate(1))})`;
       else if (dateFilterMode === 'custom') label.textContent = `Calendario: ${formatDisplayDate(customDateValue)}`;
@@ -1771,6 +1838,7 @@ Titular: {titular}
 
       const filteredPickups = pickups.filter(p => {
         if (!matchDateAndDriver(p)) return false;
+        if (isItemHiddenByCompletedFilter(p, 'pickup')) return false;
         if (!qNorm) return true;
         const driverName = drivers.find(d => d.id === p.driverId)?.name || '';
         const recipientsText = Array.isArray(p.recipients) ? p.recipients.join(' ') : '';
@@ -1784,6 +1852,7 @@ Titular: {titular}
 
       const filteredDeliveries = deliveries.filter(d => {
         if (!matchDateAndDriver(d)) return false;
+        if (isItemHiddenByCompletedFilter(d, 'delivery')) return false;
         if (!qNorm) return true;
         const driverName = drivers.find(x => x.id === d.driverId)?.name || '';
         const total = getOrderTotal(d);
