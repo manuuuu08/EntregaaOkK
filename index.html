@@ -1,0 +1,3014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="EntregaOk" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>EntregaOk - Retiros, Entregas y Caja</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="text-slate-100 flex justify-center min-h-screen">
+
+  <!-- PANTALLA INICIAL: CREAR CUENTA / INICIAR SESIÓN -->
+  <div id="authScreen" class="fixed inset-0 z-50 bg-slate-950 flex justify-center overflow-y-auto">
+    <div class="w-full max-w-md min-h-screen bg-slate-900 border-x border-slate-800 px-5 py-7 flex flex-col justify-between">
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="bg-emerald-500 text-slate-950 p-2 rounded-xl shadow-lg shadow-emerald-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </span>
+            <div>
+              <h1 class="text-lg font-extrabold text-white leading-tight">EntregaOk</h1>
+              <p class="text-[11px] text-slate-400">Cuenta independiente • Offline + Nube</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            v11 Rápida
+          </span>
+        </div>
+
+        <div class="space-y-1.5">
+          <h2 id="auth-heading" class="text-2xl font-extrabold text-white tracking-tight">Crear cuenta</h2>
+          <p id="auth-subheading" class="text-xs text-slate-400 leading-relaxed">
+            Creá tu cuenta con tu Gmail y contraseña. Tus retiros, entregas, caja y textos quedan separados y guardados en tu celular.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+          <button type="button" id="tab-auth-register" onclick="switchAuthMode('register')" class="py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-slate-950 transition">
+            Crear cuenta
+          </button>
+          <button type="button" id="tab-auth-login" onclick="switchAuthMode('login')" class="py-2.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white transition">
+            Iniciar sesión
+          </button>
+        </div>
+
+        <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Tu nombre o apodo</label>
+            <input type="text" id="reg-name" required placeholder="Ej: Persona 1, Camila, Lucas..." class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Gmail</label>
+            <input type="email" id="reg-email" required autocomplete="email" placeholder="tunombre@gmail.com" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
+            <div class="relative">
+              <input type="password" id="reg-password" required minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-16 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+              <button type="button" onclick="togglePasswordVisibility('reg-password', this)" class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 hover:text-emerald-400">Ver</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Repetir contraseña</label>
+            <input type="password" id="reg-password2" required minlength="6" autocomplete="new-password" placeholder="Escribila de nuevo" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <p id="auth-error" class="hidden text-xs font-semibold text-rose-400 bg-rose-950/60 border border-rose-800/70 rounded-xl px-3 py-2"></p>
+
+          <button type="submit" id="btn-register-submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20">
+            Crear mi cuenta
+          </button>
+        </form>
+
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="hidden space-y-3.5 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Gmail</label>
+            <input type="email" id="login-email" required autocomplete="email" placeholder="tunombre@gmail.com" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
+            <div class="relative">
+              <input type="password" id="login-password" required autocomplete="current-password" placeholder="Tu contraseña" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-16 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+              <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute right-3 top-2.5 text-[11px] font-bold text-slate-400 hover:text-emerald-400">Ver</button>
+            </div>
+          </div>
+
+          <p id="login-error" class="hidden text-xs font-semibold text-rose-400 bg-rose-950/60 border border-rose-800/70 rounded-xl px-3 py-2"></p>
+
+          <button type="submit" id="btn-login-submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3 rounded-xl text-sm transition shadow-lg shadow-emerald-500/20">
+            Iniciar sesión
+          </button>
+        </form>
+
+        <div id="saved-device-accounts-box" class="hidden bg-slate-800/50 border border-slate-800 rounded-2xl p-3 space-y-2">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Cuentas en este celular</p>
+          <div id="saved-device-accounts-list" class="space-y-1.5"></div>
+        </div>
+      </div>
+
+      <div class="pt-6 text-center space-y-1">
+        <p class="text-[11px] text-slate-400">
+          Una vez que entrás, tu sesión queda guardada en el celular y funciona <strong class="text-slate-200">sin internet</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full max-w-md bg-slate-900 min-h-screen flex flex-col shadow-2xl border-x border-slate-800 relative pb-24">
+
+    <header class="bg-slate-900/95 backdrop-blur sticky top-0 z-20 px-4 pt-4 pb-3 border-b border-slate-800">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2 flex-wrap">
+            <span class="bg-emerald-500 text-slate-950 p-1.5 rounded-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </span>
+            EntregaOk
+            <span id="sync-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">● En vivo</span>
+          </h1>
+          <p class="text-xs text-slate-400">Retiros, entregas, tarifas y control de caja</p>
+        </div>
+        <button onclick="openTeamModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition shrink-0">
+          <span>+ Persona</span>
+        </button>
+      </div>
+
+      <div id="search-container" class="mb-3">
+        <div class="relative">
+          <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="Buscar nombre, número, lugar, referencia o nota..." class="w-full bg-slate-800/90 text-sm text-white placeholder-slate-400 rounded-xl pl-9 pr-9 py-2 border border-slate-700 focus:outline-none focus:border-emerald-500">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-lg font-bold px-1" title="Limpiar búsqueda">&times;</button>
+        </div>
+      </div>
+
+      <div id="driver-filters" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+    </header>
+
+    <main class="flex-1 p-4 space-y-4">
+
+      <div id="date-filter-bar" class="space-y-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex gap-1 bg-slate-800 p-1 rounded-lg text-xs">
+            <button onclick="setDateFilter('all')" id="df-all" class="px-2.5 py-1 rounded-md font-medium bg-emerald-500 text-slate-950">Todos</button>
+            <button onclick="setDateFilter('today')" id="df-today" class="px-2.5 py-1 rounded-md font-medium text-slate-300">Hoy</button>
+            <button onclick="setDateFilter('tomorrow')" id="df-tomorrow" class="px-2.5 py-1 rounded-md font-medium text-slate-300">Mañana</button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <input type="date" id="calendarFilter" onchange="onCalendarPick()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500" title="Filtrar por fecha exacta">
+            <button id="clearCalBtn" onclick="clearCalendarFilter()" class="hidden text-xs text-rose-400 font-bold px-1.5" title="Quitar fecha">&times;</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-400">
+          <span id="active-date-label">Mostrando todas las fechas</span>
+          <span id="orders-count" class="font-semibold text-slate-300">0 ítems</span>
+        </div>
+      </div>
+
+      <!-- VISTA 1: RETIROS -->
+      <section id="view-pickups" class="space-y-3">
+        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold text-emerald-300 block">📥 Panel de Retiros</span>
+            <span class="text-[11px] text-slate-400">Agendá retiro, entrega y lista de nombres</span>
+          </div>
+          <button onclick="openPickupModal()" class="bg-emerald-500 text-slate-950 text-xs font-bold px-2.5 py-1 rounded-lg">+ Anotar Retiro</button>
+        </div>
+        <div id="pickups-list" class="space-y-3"></div>
+      </section>
+
+      <!-- VISTA 2: ENTREGAS -->
+      <section id="view-deliveries" class="hidden space-y-3">
+        <div class="bg-sky-500/10 border border-sky-500/20 rounded-xl px-3 py-2 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold text-sky-300 block">🚚 Panel de Entregas</span>
+            <span class="text-[11px] text-slate-400">Pendientes arriba, entregados abajo</span>
+          </div>
+          <button onclick="openDeliveryModal()" class="bg-sky-500 text-slate-950 text-xs font-bold px-2.5 py-1 rounded-lg">+ Anotar Entrega</button>
+        </div>
+        <div id="deliveries-list" class="space-y-3"></div>
+      </section>
+
+      <!-- VISTA 3: CAJA -->
+      <section id="view-finance" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-white">Caja y Movimientos</h2>
+            <p id="fin-period-subtitle" class="text-xs text-slate-400">Mostrando movimientos del mes</p>
+          </div>
+          <button onclick="openExpenseModal()" class="bg-rose-500 hover:bg-rose-400 text-slate-950 text-xs font-extrabold px-3 py-1.5 rounded-xl shadow-sm transition">
+            - Anotar Gasto / Salida
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <div class="grid grid-cols-5 gap-1 bg-slate-800 p-1 rounded-xl text-xs border border-slate-700">
+            <button onclick="setFinancePeriod('day')" id="fp-day" class="py-1.5 rounded-lg font-bold text-slate-300 transition">Día</button>
+            <button onclick="setFinancePeriod('week')" id="fp-week" class="py-1.5 rounded-lg font-bold text-slate-300 transition">Semana</button>
+            <button onclick="setFinancePeriod('month')" id="fp-month" class="py-1.5 rounded-lg font-bold bg-emerald-500 text-slate-950 transition">Mes</button>
+            <button onclick="setFinancePeriod('year')" id="fp-year" class="py-1.5 rounded-lg font-bold text-slate-300 transition">Año</button>
+            <button onclick="setFinancePeriod('all')" id="fp-all" class="py-1.5 rounded-lg font-bold text-slate-300 transition">Todo</button>
+          </div>
+
+          <div id="fin-period-navigator" class="flex items-center justify-between bg-slate-800/70 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs">
+            <button onclick="shiftFinancePeriod(-1)" class="text-slate-300 hover:text-white font-bold px-2 py-0.5 rounded-lg bg-slate-700/60">‹ Ant</button>
+            <span id="fin-period-range-label" class="font-bold text-emerald-300">Noviembre 2026</span>
+            <button onclick="shiftFinancePeriod(1)" class="text-slate-300 hover:text-white font-bold px-2 py-0.5 rounded-lg bg-slate-700/60">Sig ›</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-2xl">
+            <p class="text-[11px] text-emerald-300 font-semibold mb-1">Ingresos ↗</p>
+            <p id="fin-collected" class="text-base font-extrabold text-emerald-400 break-words">+$0</p>
+            <p id="fin-income-count" class="text-[10px] text-slate-400 mt-0.5">0 cobros</p>
+          </div>
+          <div class="bg-rose-500/10 border border-rose-500/30 p-3 rounded-2xl">
+            <p class="text-[11px] text-rose-300 font-semibold mb-1">Gastos ↘</p>
+            <p id="fin-expenses" class="text-base font-extrabold text-rose-400 break-words">-$0</p>
+            <p id="fin-expense-count" class="text-[10px] text-slate-400 mt-0.5">0 salidas</p>
+          </div>
+          <div class="bg-sky-500/10 border border-sky-500/30 p-3 rounded-2xl">
+            <p class="text-[11px] text-sky-300 font-semibold mb-1">Balance Neto</p>
+            <p id="fin-net" class="text-base font-extrabold text-white break-words">$0</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">En mano/cta</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Por Medio de Pago (Período)</h3>
+            <span class="text-[10px] text-slate-400">Neto real</span>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-amber-300 font-bold">💵 Efectivo</span>
+              <span id="fin-cash-net" class="font-extrabold text-white">$0</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span id="fin-cash-in">Ingresos: +$0</span>
+              <span id="fin-cash-out">Gastos: -$0</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+              <div id="fin-cash-bar" class="bg-amber-400 h-1.5 rounded-full transition-all" style="width: 50%"></div>
+            </div>
+          </div>
+
+          <div class="space-y-1 pt-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-emerald-300 font-bold">📲 Transferencia / MP</span>
+              <span id="fin-transfer-net" class="font-extrabold text-white">$0</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span id="fin-transfer-in">Ingresos: +$0</span>
+              <span id="fin-transfer-out">Gastos: -$0</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+              <div id="fin-transfer-bar" class="bg-emerald-400 h-1.5 rounded-full transition-all" style="width: 50%"></div>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-700/80 pt-2.5 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Separación ingresos:</span>
+            <div class="text-right">
+              <span id="fin-shipping-only" class="text-emerald-300 font-bold">Envíos: $0</span>
+              <span class="text-slate-600 mx-1">•</span>
+              <span id="fin-product" class="text-sky-400 font-bold">Prod: $0</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="openDebtorsModal()" class="w-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 px-4 py-3 rounded-2xl flex items-center justify-between transition">
+          <div class="text-left">
+            <span class="text-xs font-bold text-amber-300 block">⏳ Por Cobrar (Deudores pendientes)</span>
+            <span id="fin-debtors-count" class="text-[11px] text-amber-200/80">0 pagos pendientes en total</span>
+          </div>
+          <div class="text-right">
+            <span id="fin-pending" class="text-sm font-extrabold text-amber-400 block">$0</span>
+            <span class="text-[10px] bg-amber-500 text-slate-950 font-extrabold px-2 py-0.5 rounded-md">Ver / Reclamar ›</span>
+          </div>
+        </button>
+
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Rendimiento por Persona / Repartidor (Período)</h3>
+          <div id="fin-drivers" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-slate-800/60 border border-slate-700/80 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-white">📋 Movimientos Detallados</h3>
+            <div class="flex gap-1 text-[10px]">
+              <button onclick="setFinanceTypeFilter('all')" id="ft-all" class="px-2 py-0.5 rounded-md font-bold bg-white text-slate-950">Todos</button>
+              <button onclick="setFinanceTypeFilter('in')" id="ft-in" class="px-2 py-0.5 rounded-md font-bold bg-slate-700 text-emerald-300">+ Ingresos</button>
+              <button onclick="setFinanceTypeFilter('out')" id="ft-out" class="px-2 py-0.5 rounded-md font-bold bg-slate-700 text-rose-300">- Gastos</button>
+            </div>
+          </div>
+
+          <div class="relative">
+            <input type="text" id="finSearchInput" oninput="renderFinance()" placeholder="Buscar movimiento, cliente, gasto o persona..." class="w-full bg-slate-900 text-xs text-white placeholder-slate-400 rounded-xl pl-8 pr-3 py-2 border border-slate-700 focus:outline-none focus:border-emerald-500">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+
+          <div id="fin-movements-list" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- VISTA 4: SERVICIOS -->
+      <section id="view-services" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-white">Servicios y Tarifas</h2>
+            <p class="text-xs text-slate-400">Precios por zona y recargos configurables</p>
+          </div>
+          <button onclick="openServiceModal()" class="bg-emerald-500 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg">+ Agregar</button>
+        </div>
+
+        <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl space-y-2.5">
+          <div>
+            <h3 class="text-sm font-bold text-amber-300">⚡ Recargo por Cambio de Fecha</h3>
+            <p class="text-[11px] text-slate-300">Se sugiere opcionalmente cuando editás una entrega para otra fecha y se suma al total.</p>
+          </div>
+          <div class="grid grid-cols-3 gap-2 items-end pt-1">
+            <div class="col-span-2">
+              <label class="block text-[11px] text-slate-400 mb-1">Monto sugerido de recargo ($)</label>
+              <input type="number" id="cfg-surcharge-amount" placeholder="Ej: 1500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            </div>
+            <button onclick="saveSurchargeConfig()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition">
+              Guardar
+            </button>
+          </div>
+          <p id="surcharge-cfg-feedback" class="text-xs text-emerald-400 hidden text-center">¡Recargo guardado!</p>
+        </div>
+
+        <div id="services-list" class="space-y-2.5"></div>
+      </section>
+
+      <!-- VISTA 5: MÁS -->
+      <section id="view-more" class="hidden space-y-4">
+        <div class="bg-slate-800 border border-emerald-500/30 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Cuenta activa</span>
+              <h3 id="account-card-name" class="text-sm font-extrabold text-white truncate">Usuario</h3>
+              <p id="account-card-email" class="text-xs text-slate-400 truncate">correo@gmail.com</p>
+            </div>
+            <button onclick="logoutUser()" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 font-bold px-3 py-2 rounded-xl text-xs shrink-0 transition">
+              Cerrar sesión
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Tus datos se guardan bajo tu cuenta para que no se mezclen con los de otras personas.
+          </p>
+        </div>
+
+        <h2 class="text-base font-bold text-white">Equipo y Personalización</h2>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">📶 Modo Sin Internet y Nube</h3>
+            <span id="cloud-status-pill" class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Conectado</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Podés anotar, editar, buscar y borrar <strong>aunque se corten los datos</strong>. Apenas vuelve el internet, todo se sincroniza solo.
+          </p>
+          <button onclick="forceSyncNow()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-xl text-xs transition">
+            Sincronizar Ahora
+          </button>
+          <p id="sync-now-feedback" class="text-xs text-emerald-400 hidden text-center"></p>
+        </div>
+
+        <div id="install-app-card" class="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-emerald-300">📲 Instalar App en el Celular</h3>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950">App Offline</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            • <strong>Android (Chrome):</strong> menú tres puntitos → <em>"Instalar aplicación"</em>.<br>
+            • <strong>iPhone (Safari):</strong> <em>Compartir</em> → <em>"Agregar a inicio"</em>.
+          </p>
+          <button id="btn-native-install" onclick="triggerNativeInstall()" class="hidden w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition">
+            Instalar Aplicación Ahora
+          </button>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white">👥 Equipo de Reparto</h3>
+            <button onclick="openTeamModal()" class="bg-emerald-500 text-slate-950 text-xs font-bold px-2.5 py-1 rounded-lg">+ Agregar</button>
+          </div>
+          <div id="team-list" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-sky-300">💬 Texto WhatsApp: Entrega y Cobro</h3>
+            <button onclick="resetTemplate('delivery')" class="text-[11px] text-slate-400 hover:text-white underline">Restaurar</button>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Etiquetas:
+            <code class="text-sky-300">{cliente}</code>, <code class="text-sky-300">{dia}</code>, <code class="text-sky-300">{fecha}</code>, <code class="text-sky-300">{destino}</code>, <code class="text-sky-300">{horario}</code>, <code class="text-sky-300">{notas}</code>, <code class="text-sky-300">{paquetes}</code>, <code class="text-sky-300">{origen}</code>, <code class="text-sky-300">{detalle_precios}</code>, <code class="text-sky-300">{recargo_linea}</code>, <code class="text-sky-300">{total}</code>, <code class="text-sky-300">{metodo}</code>, <code class="text-sky-300">{alias}</code>, <code class="text-sky-300">{titular}</code>.
+          </p>
+          <textarea id="cfg-tpl-delivery" rows="9" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white leading-relaxed"></textarea>
+
+          <div class="grid grid-cols-1 gap-2 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Alias de transferencia</label>
+              <input type="text" id="cfg-alias" placeholder="Ej: tu.alias.mp" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Titular / Cuenta</label>
+              <input type="text" id="cfg-holder" placeholder="Ej: Nombre y Apellido (Banco / Billetera)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Nota fija de punto de encuentro / suplentes (opcional)</label>
+              <input type="text" id="cfg-meetup-note" placeholder="Ej: Punto de referencia o contacto alternativo" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-800 border border-amber-500/30 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-amber-300">⏳ Texto WhatsApp: Pago Pendiente</h3>
+            <button onclick="resetTemplate('pending')" class="text-[11px] text-slate-400 hover:text-white underline">Restaurar</button>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Etiquetas:
+            <code class="text-amber-300">{cliente}</code>, <code class="text-amber-300">{destino}</code>, <code class="text-amber-300">{fecha}</code>, <code class="text-amber-300">{detalle_precios}</code>, <code class="text-amber-300">{recargo_linea}</code>, <code class="text-amber-300">{total}</code>, <code class="text-amber-300">{alias}</code>, <code class="text-amber-300">{titular}</code>.
+          </p>
+          <textarea id="cfg-tpl-pending" rows="7" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white leading-relaxed"></textarea>
+        </div>
+
+        <div class="bg-slate-800 border border-emerald-500/30 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-emerald-300">📥 Texto WhatsApp: Aviso de Retiro</h3>
+            <button onclick="resetTemplate('pickup')" class="text-[11px] text-slate-400 hover:text-white underline">Restaurar</button>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Etiquetas:
+            <code class="text-emerald-300">{tienda}</code>, <code class="text-emerald-300">{lugar_retiro}</code>, <code class="text-emerald-300">{entrega_a}</code>, <code class="text-emerald-300">{lista_nombres}</code>, <code class="text-emerald-300">{fecha}</code>, <code class="text-emerald-300">{horario}</code>, <code class="text-emerald-300">{paquetes}</code>, <code class="text-emerald-300">{notas}</code>.
+          </p>
+          <textarea id="cfg-tpl-pickup" rows="7" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white leading-relaxed"></textarea>
+        </div>
+
+        <button onclick="saveAllWaSettings()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3 rounded-2xl text-sm transition shadow-lg shadow-emerald-500/20">
+          💾 Guardar Todos los Textos y Datos
+        </button>
+        <p id="wa-cfg-feedback" class="text-xs text-emerald-400 hidden text-center font-semibold">¡Todos los mensajes y datos fueron guardados!</p>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-white">☁️ Base de Datos (Firebase)</h3>
+          <input type="url" id="firebaseUrlInput" placeholder="https://tu-proyecto-default-rtdb.firebaseio.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <div class="flex gap-2">
+            <button onclick="saveFirebaseConfig()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl text-xs transition">
+              Guardar URL
+            </button>
+            <button onclick="resetToDefaultFirebase()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-3 py-2 rounded-xl text-xs transition">
+              Restaurar Base
+            </button>
+          </div>
+          <p id="cloud-feedback" class="text-xs text-emerald-400 hidden"></p>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-3">
+          <h3 class="text-sm font-bold text-white">📋 Copiar Resumen General</h3>
+          <button onclick="copyWhatsAppReport()" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">
+            Copiar Reporte del Día
+          </button>
+          <p id="copy-feedback" class="text-xs text-emerald-400 text-center hidden">¡Reporte copiado al portapapeles!</p>
+        </div>
+      </section>
+
+    </main>
+
+    <button id="fab-add-btn" onclick="handleFabClick()" class="fixed bottom-20 right-4 sm:right-auto sm:ml-[375px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold w-14 h-14 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center text-2xl transition transform active:scale-95 z-30" title="Anotar">
+      +
+    </button>
+
+    <nav class="fixed bottom-0 w-full max-w-md bg-slate-950/95 backdrop-blur border-t border-slate-800 grid grid-cols-5 py-2 px-1 z-20">
+      <button onclick="switchTab('pickups')" id="nav-pickups" class="flex flex-col items-center gap-1 text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+        <span class="text-[10px] font-semibold">Retiros</span>
+      </button>
+      <button onclick="switchTab('deliveries')" id="nav-deliveries" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+        <span class="text-[10px] font-semibold">Entregas</span>
+      </button>
+      <button onclick="switchTab('finance')" id="nav-finance" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-[10px] font-semibold">Caja</span>
+      </button>
+      <button onclick="switchTab('services')" id="nav-services" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        <span class="text-[10px] font-semibold">Servicios</span>
+      </button>
+      <button onclick="switchTab('more')" id="nav-more" class="flex flex-col items-center gap-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span class="text-[10px] font-semibold">Más</span>
+      </button>
+    </nav>
+
+    <!-- MODAL RETIROS -->
+    <div id="pickupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[92vh] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 id="pickupModalTitle" class="text-base font-bold text-emerald-400">📥 Agendar Retiro</h3>
+            <p class="text-[11px] text-slate-400">Lugar de retiro, destino de entrega y lista de nombres</p>
+          </div>
+          <button onclick="closePickupModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <form id="pickupForm" onsubmit="handlePickupSubmit(event)" class="space-y-3 text-sm">
+          <input type="hidden" id="p-editId" value="">
+
+          <div class="bg-slate-800/50 border border-slate-700/70 p-3.5 rounded-2xl space-y-3">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Quien despacha</label>
+                <input type="text" id="p-sender" required placeholder="Ej: Tienda / Local" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">WhatsApp <span class="text-slate-500">(opcional)</span></label>
+                <input type="tel" id="p-phone" placeholder="Opcional: 1122334455" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Retirar en</label>
+              <input type="text" id="p-pickup" required placeholder="Ej: Morón Plaza Paracone" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+
+            <div class="bg-slate-900/80 border border-emerald-500/30 p-3 rounded-xl space-y-2.5">
+              <div>
+                <label class="block text-xs text-emerald-300 font-semibold mb-1">Entrega a (Lugar / Zona)</label>
+                <input type="text" id="p-deliverPlace" placeholder="Ej: Moreno / Lanús / Once" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs text-slate-300 font-medium">Personas / Nombres para entregar</label>
+                  <button type="button" onclick="addRecipientField('')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold px-2.5 py-0.5 rounded-lg transition">
+                    + Nombre
+                  </button>
+                </div>
+                <div id="p-recipients-container" class="space-y-2"></div>
+                <p class="text-[10px] text-slate-400 mt-1">Al mandar por WhatsApp cada nombre sale en lista con guion bajo (<code class="text-emerald-300">_Jesús</code>).</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Fecha (Calendario)</label>
+                <input type="date" id="p-date" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Horario retiro / encuentro</label>
+                <input type="text" id="p-time" placeholder="Ej: 14 a 15h" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Persona que retira</label>
+                <select id="p-driver" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Cantidad / Tamaño</label>
+                <input type="text" id="p-packages" value="1 paq M" placeholder="Ej: 2 paq M" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Referencia / Notas de lugares (se usan en WhatsApp)</label>
+              <input type="text" id="p-notes" placeholder="Ej: Nos vemos en Moreno lado estación / Árbol de la bandera" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl transition">
+            Guardar Retiro
+          </button>
+          <button type="button" id="btn-modal-delete-pickup" onclick="deletePickupFromModal()" class="hidden w-full bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold py-2.5 rounded-xl text-xs transition">
+            🗑️ Borrar este Retiro
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL ENTREGAS -->
+    <div id="deliveryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[92vh] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 id="deliveryModalTitle" class="text-base font-bold text-sky-400">🚚 Anotar Entrega</h3>
+            <p id="batch-banner" class="hidden text-[11px] text-amber-300 font-semibold mt-0.5">🔗 Cargando otro destino del mismo lote</p>
+          </div>
+          <button onclick="closeDeliveryModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <form id="deliveryForm" onsubmit="handleDeliverySubmit(event, false)" class="space-y-3 text-sm">
+          <input type="hidden" id="d-editId" value="">
+          <input type="hidden" id="d-originalDate" value="">
+
+          <div class="bg-slate-800/50 border border-slate-700/70 p-3.5 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Datos de la Entrega y Cobro</span>
+              <span id="batch-count-pill" class="hidden text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">Destino #1</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Cliente (Recibe)</label>
+                <input type="text" id="d-client" required placeholder="Ej: Cliente 1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">WhatsApp <span class="text-slate-500">(opcional)</span></label>
+                <input type="tel" id="d-phone" placeholder="Opcional: 1122334455" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2">
+                <label class="block text-xs text-slate-400 mb-1">Destino de entrega</label>
+                <input type="text" id="d-dropoff" required placeholder="Ej: Lanús / Moreno" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Paquetes / Tamaño</label>
+                <input type="text" id="d-packages" value="1 paq M" placeholder="Ej: 1 paq M" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Fecha de entrega</label>
+                <input type="date" id="d-date" onchange="onDeliveryDateChange()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Horario encuentro</label>
+                <input type="text" id="d-time" placeholder="Ej: 15 a 16h" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+            </div>
+
+            <div id="surcharge-box" class="hidden bg-amber-500/15 border border-amber-500/40 rounded-xl p-3 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <span class="text-xs font-bold text-amber-300 block">⚡ Cambio de fecha detectado</span>
+                  <span class="text-[11px] text-slate-300">¿Querés sumar recargo al total? (Opcional)</span>
+                </div>
+                <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-900 px-2.5 py-1 rounded-lg border border-amber-500/40">
+                  <input type="checkbox" id="d-applySurcharge" onchange="toggleSurchargeInput()" class="accent-amber-500">
+                  <span class="text-xs font-bold text-amber-300">Aplicar</span>
+                </label>
+              </div>
+              <div id="surcharge-amount-row" class="hidden grid grid-cols-2 gap-2 items-center pt-1">
+                <label class="text-xs text-slate-300">Monto recargo ($):</label>
+                <input type="number" id="d-surcharge" oninput="updateDeliveryTotalPreview()" placeholder="0" class="w-full bg-slate-900 border border-amber-500/40 rounded-lg px-2.5 py-1.5 text-white text-xs font-bold">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Persona / Repartidor</label>
+                <select id="d-driver" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">¿Dónde se cobra?</label>
+                <select id="d-collectAt" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  <option value="Al entregar">Al entregar</option>
+                  <option value="Al retirar">Al retirar</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Valor Envío ($)</label>
+                <input type="number" id="d-shippingCost" oninput="updateDeliveryTotalPreview()" required placeholder="5000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Producto / Extra ($)</label>
+                <input type="number" id="d-productCost" oninput="updateDeliveryTotalPreview()" placeholder="0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 flex items-center justify-between text-xs">
+              <span class="text-slate-400">Total calculado (Envío + Prod + Recargo):</span>
+              <span id="d-total-preview" class="text-sm font-extrabold text-emerald-400">$0</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Medio de pago</label>
+                <select id="d-method" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  <option value="Transferencia">📲 Transferencia / MP</option>
+                  <option value="Efectivo">💵 Efectivo</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Estado del pago</label>
+                <select id="d-paid" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  <option value="false">⏳ Pendiente</option>
+                  <option value="true">✓ Ya Pagado</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Origen / Referencia de tienda <span class="text-slate-500">(opcional)</span></label>
+              <input type="text" id="d-originRef" placeholder="Ej: Morón Plaza Paracone / Tienda Sol" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Punto de encuentro exacto / Notas</label>
+              <input type="text" id="d-notes" placeholder="Ej: Árbol que tiene la bandera / En molinete" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            <button type="button" id="btn-save-another-del" onclick="submitAndAddAnotherDelivery()" class="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold py-2.5 rounded-xl text-xs transition">
+              + Guardar y cargar otro destino
+            </button>
+            <button type="submit" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 rounded-xl transition">
+              Guardar Entrega
+            </button>
+            <button type="button" id="btn-modal-delete-delivery" onclick="deleteDeliveryFromModal()" class="hidden w-full bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold py-2.5 rounded-xl text-xs transition">
+              🗑️ Borrar esta Entrega
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL GASTOS -->
+    <div id="expenseModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[90vh] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 id="expenseModalTitle" class="text-base font-bold text-rose-400">💸 Anotar Gasto / Salida</h3>
+            <p class="text-[11px] text-slate-400">Nafta, SUBE, viáticos, insumos o retiro de caja</p>
+          </div>
+          <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <form onsubmit="handleExpenseSubmit(event)" class="space-y-3 text-sm">
+          <input type="hidden" id="e-editId" value="">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Concepto / Descripción</label>
+            <input type="text" id="e-title" required placeholder="Ej: Carga SUBE / Nafta / Rendición mercadería" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Monto ($)</label>
+              <input type="number" id="e-amount" required placeholder="3000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Fecha</label>
+              <input type="date" id="e-date" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Medio de pago</label>
+              <select id="e-method" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Transferencia">📲 Transferencia / MP</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Categoría</label>
+              <select id="e-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                <option value="Transporte / Nafta / SUBE">🚌 Transporte / Nafta / SUBE</option>
+                <option value="Rendición Mercadería">📦 Rendición Mercadería</option>
+                <option value="Viáticos / Comida">🍔 Viáticos / Comida</option>
+                <option value="Retiro / Ganancia">💰 Retiro / Ganancia</option>
+                <option value="Otro Gasto">🧾 Otro Gasto</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">¿Quién lo pagó / retiró?</label>
+              <select id="e-driver" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"></select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Nota (opcional)</label>
+              <input type="text" id="e-notes" placeholder="Ej: Boleto ida y vuelta" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+          <button type="submit" class="w-full bg-rose-500 hover:bg-rose-400 text-slate-950 font-extrabold py-3 rounded-xl transition">
+            Guardar Gasto / Salida
+          </button>
+          <button type="button" id="btn-modal-delete-expense" onclick="deleteExpenseFromModal()" class="hidden w-full bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold py-2.5 rounded-xl text-xs transition">
+            🗑️ Borrar este Gasto
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL DEUDORES -->
+    <div id="debtorsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[88vh] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-base font-bold text-amber-400">⏳ Pagos Pendientes (Deudores)</h3>
+            <p class="text-xs text-slate-400">Detalle de quién falta abonar y aviso por WhatsApp</p>
+          </div>
+          <button onclick="closeDebtorsModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <div id="debtors-list" class="space-y-2.5"></div>
+      </div>
+    </div>
+
+    <!-- MODAL SERVICIOS -->
+    <div id="serviceModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 id="serviceModalTitle" class="text-base font-bold text-white">Agregar Servicio / Tarifa</h3>
+          <button onclick="closeServiceModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+        </div>
+        <form onsubmit="saveService(event)" class="space-y-3 text-sm">
+          <input type="hidden" id="s-editId" value="">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Zona / Tipo de Paquete / Bulto</label>
+            <input type="text" id="s-name" required placeholder="Ej: Paquete M - Morón a Lanús" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Precio ($)</label>
+            <input type="number" id="s-price" required placeholder="5000" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Detalle / Condiciones (opcional)</label>
+            <input type="text" id="s-desc" placeholder="Ej: Hasta 5 kg, punto de encuentro" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          </div>
+          <button type="submit" class="w-full bg-emerald-500 text-slate-950 font-bold py-2.5 rounded-xl">Guardar Tarifa</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL EQUIPO -->
+    <div id="teamModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h3 class="text-base font-bold text-white">Agregar Persona / Repartidor</h3>
+          <button onclick="closeTeamModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+        </div>
+        <form onsubmit="addDriver(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Nombre</label>
+            <input type="text" id="newDriverName" required placeholder="Ej: Persona 1, Persona 2..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Color identificador</label>
+            <select id="newDriverColor" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm">
+              <option value="emerald">Verde Esmeralda</option>
+              <option value="sky">Celeste</option>
+              <option value="purple">Violeta</option>
+              <option value="amber">Naranja / Ámbar</option>
+              <option value="rose">Rosa</option>
+            </select>
+          </div>
+          <button type="submit" class="w-full bg-emerald-500 text-slate-950 font-bold py-2.5 rounded-xl text-sm">Guardar Nombre</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const DEFAULT_FIREBASE_URL = 'https://rutaexpress-app-default-rtdb.firebaseio.com';
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('SW info:', err);
+        });
+      });
+    }
+
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btn = document.getElementById('btn-native-install');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    async function triggerNativeInstall() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      document.getElementById('btn-native-install').classList.add('hidden');
+    }
+
+    function getLocalISODate(offsetDays = 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDisplayDate(isoDate) {
+      if (!isoDate) return 'Sin fecha';
+      const today = getLocalISODate(0);
+      const tomorrow = getLocalISODate(1);
+      if (isoDate === today) return 'Hoy';
+      if (isoDate === tomorrow) return 'Mañana';
+      const [y, m, d] = isoDate.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function getDayName(isoDate) {
+      if (!isoDate) return '';
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+      return days[dt.getDay()];
+    }
+
+    function normalizeText(str) {
+      return String(str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    const DEFAULT_DELIVERY_TEMPLATE = `Hola {cliente}, buen {dia} 👋
+Te paso el resumen y los datos de tu envío:
+
+| Confirmar asistencia {dia} ({fecha}) |
+• {destino} {horario}{notas_coma}
+{nota_encuentro}
+
+🛍️ {paquetes} • {origen_o_destino}
+• Detalle: {detalle_precios}
+{recargo_linea}
+💸 Total: {total}
+💳 Medio de pago: {metodo}
+
+📲 Datos para transferencia:
+Alias: {alias}
+Titular: {titular}
+• Por favor enviar comprobante una vez realizada.
+
+¡Muchas gracias! 🙌`;
+
+    const DEFAULT_PENDING_TEMPLATE = `Hola {cliente}, ¿cómo estás? 😊
+Te recuerdo que quedó pendiente el pago de tu envío ({fecha} - {destino}):
+
+• Detalle: {detalle_precios}
+{recargo_linea}
+💸 Total pendiente: {total}
+
+💕 Datos para transferencia:
+Alias: {alias}
+Titular: {titular}
+• Cuando puedas mandame el comprobante por acá. ¡Muchas gracias! 🙏`;
+
+    const DEFAULT_PICKUP_TEMPLATE = `Hola {tienda}! Te escribo para coordinar el retiro en {lugar_retiro} ({fecha} {horario}).
+{entrega_bloque}
+{lista_nombres}
+{notas_bloque}
+¡Avísame cuando estés!`;
+
+    const defaultDrivers = [
+      { id: 'd1', name: 'Persona 1', color: 'emerald' },
+      { id: 'd2', name: 'Persona 2', color: 'sky' }
+    ];
+
+    const defaultWaSettings = {
+      alias: '',
+      holder: '',
+      meetupNote: '',
+      surchargeDefault: 1500,
+      deliveryTemplate: DEFAULT_DELIVERY_TEMPLATE,
+      pendingTemplate: DEFAULT_PENDING_TEMPLATE,
+      pickupTemplate: DEFAULT_PICKUP_TEMPLATE
+    };
+
+    let drivers = [...defaultDrivers];
+    let pickups = [];
+    let deliveries = [];
+    let services = [];
+    let expenses = [];
+    let waSettings = { ...defaultWaSettings };
+    let firebaseUrl = localStorage.getItem('re_firebase_url_v6') || DEFAULT_FIREBASE_URL;
+    let hasPendingSync = false;
+
+    let currentTab = 'pickups';
+    let selectedDriver = 'all';
+    let dateFilterMode = 'all';
+    let customDateValue = '';
+    let activeBatchId = null;
+    let batchItemCounter = 1;
+    let syncInterval = null;
+    let isSavingToCloud = false;
+    let needsCloudPushAgain = false;
+    let lastLocalMutationAt = 0;
+
+    function isAnyModalOpen() {
+      const modalIds = ['pickupModal', 'deliveryModal', 'expenseModal', 'debtorsModal', 'serviceModal', 'teamModal'];
+      return modalIds.some(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+      });
+    }
+
+    function getOrderTotal(o) {
+      return Number(o.shippingCost || 0) + Number(o.productCost || 0) + Number(o.surcharge || 0);
+    }
+
+    const ACCOUNTS_REGISTRY_KEY = 're_accounts_registry_v1';
+    const ACTIVE_SESSION_KEY = 're_active_session_v1';
+    let currentUser = null;
+
+    function normalizeEmail(email) {
+      return String(email || '').trim().toLowerCase();
+    }
+
+    function emailToUid(email) {
+      const clean = normalizeEmail(email);
+      let hash = 2166136261;
+      for (let i = 0; i < clean.length; i++) {
+        hash ^= clean.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      const safeSlug = clean.replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').slice(0, 28);
+      return `usr_${safeSlug}_${(hash >>> 0).toString(16)}`;
+    }
+
+    async function hashPassword(password) {
+      const text = String(password || '');
+      if (window.crypto && window.crypto.subtle) {
+        const enc = new TextEncoder().encode(text);
+        const buf = await window.crypto.subtle.digest('SHA-256', enc);
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      let h = 0;
+      for (let i = 0; i < text.length; i++) {
+        h = ((h << 5) - h) + text.charCodeAt(i);
+        h |= 0;
+      }
+      return 'fallback_' + String(h);
+    }
+
+    function getLocalAccountsRegistry() {
+      try {
+        return JSON.parse(localStorage.getItem(ACCOUNTS_REGISTRY_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveLocalAccountsRegistry(reg) {
+      localStorage.setItem(ACCOUNTS_REGISTRY_KEY, JSON.stringify(reg));
+    }
+
+    function getUserStorageKey(uid, section) {
+      return `re_u_${uid}_${section}_v1`;
+    }
+
+    function getUserPendingKey(uid) {
+      return `re_u_${uid}_pending_sync_v1`;
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = 'Ocultar';
+      } else {
+        inp.type = 'password';
+        btn.textContent = 'Ver';
+      }
+    }
+
+    function switchAuthMode(mode) {
+      const regForm = document.getElementById('registerForm');
+      const loginForm = document.getElementById('loginForm');
+      const tabReg = document.getElementById('tab-auth-register');
+      const tabLogin = document.getElementById('tab-auth-login');
+      const heading = document.getElementById('auth-heading');
+      const subheading = document.getElementById('auth-subheading');
+
+      document.getElementById('auth-error').classList.add('hidden');
+      document.getElementById('login-error').classList.add('hidden');
+
+      if (mode === 'login') {
+        regForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        tabLogin.className = 'py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-slate-950 transition';
+        tabReg.className = 'py-2.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white transition';
+        heading.textContent = 'Iniciar sesión';
+        subheading.textContent = 'Ingresá con tu correo Gmail y contraseña para ver tus datos y sincronizar.';
+      } else {
+        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden');
+        tabReg.className = 'py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-slate-950 transition';
+        tabLogin.className = 'py-2.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white transition';
+        heading.textContent = 'Crear cuenta';
+        subheading.textContent = 'Creá tu cuenta con tu Gmail y contraseña. Tus retiros, entregas, caja y textos quedan separados y guardados en tu celular.';
+      }
+      renderSavedDeviceAccounts();
+    }
+
+    function renderSavedDeviceAccounts() {
+      const reg = getLocalAccountsRegistry();
+      const accounts = Object.values(reg);
+      const box = document.getElementById('saved-device-accounts-box');
+      const list = document.getElementById('saved-device-accounts-list');
+      if (!box || !list) return;
+
+      if (accounts.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.classList.remove('hidden');
+      list.innerHTML = accounts.map(acc => `
+        <button type="button" onclick="prefillLogin('${acc.email.replace(/'/g, "\\'")}')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded-xl px-3 py-2 flex items-center justify-between gap-2 transition">
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-white truncate">${acc.name || acc.email}</p>
+            <p class="text-[11px] text-slate-400 truncate">${acc.email}</p>
+          </div>
+          <span class="text-[10px] font-bold text-emerald-400 shrink-0">Elegir ›</span>
+        </button>
+      `).join('');
+    }
+
+    function prefillLogin(email) {
+      switchAuthMode('login');
+      const emailInp = document.getElementById('login-email');
+      const passInp = document.getElementById('login-password');
+      if (emailInp) emailInp.value = email;
+      if (passInp) {
+        passInp.value = '';
+        passInp.focus();
+      }
+    }
+
+    async function fetchCloudAccountMeta(uid) {
+      if (!firebaseUrl || !navigator.onLine) return null;
+      try {
+        const res = await fetch(`${firebaseUrl}/users/${uid}/auth.json`);
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    async function pushCloudAccountMeta(userObj) {
+      if (!firebaseUrl || !navigator.onLine || !userObj || !userObj.uid) return false;
+      try {
+        const res = await fetch(`${firebaseUrl}/users/${userObj.uid}/auth.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: userObj.uid,
+            name: userObj.name,
+            email: userObj.email,
+            passwordHash: userObj.passwordHash,
+            updatedAt: Date.now()
+          })
+        });
+        return res.ok;
+      } catch {
+        return false;
+      }
+    }
+
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('auth-error');
+      errEl.classList.add('hidden');
+
+      const name = document.getElementById('reg-name').value.trim();
+      const email = normalizeEmail(document.getElementById('reg-email').value);
+      const pass = document.getElementById('reg-password').value;
+      const pass2 = document.getElementById('reg-password2').value;
+
+      if (!email.includes('@') || !email.includes('.')) {
+        errEl.textContent = 'Ingresá un correo Gmail válido.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (pass.length < 6) {
+        errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (pass !== pass2) {
+        errEl.textContent = 'Las contraseñas no coinciden. Revisalas.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const uid = emailToUid(email);
+      const reg = getLocalAccountsRegistry();
+      if (reg[uid]) {
+        errEl.textContent = 'Ese correo ya tiene una cuenta en este celular. Cambiá a "Iniciar sesión".';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const cloudMeta = await fetchCloudAccountMeta(uid);
+      if (cloudMeta && cloudMeta.email) {
+        errEl.textContent = 'Ese correo ya existe en la nube. Cambiá a "Iniciar sesión".';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const passwordHash = await hashPassword(pass);
+      const userObj = { uid, name: name || email.split('@')[0], email, passwordHash };
+
+      reg[uid] = userObj;
+      saveLocalAccountsRegistry(reg);
+      await pushCloudAccountMeta(userObj);
+
+      await activateSession(userObj, true);
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('login-error');
+      errEl.classList.add('hidden');
+
+      const email = normalizeEmail(document.getElementById('login-email').value);
+      const pass = document.getElementById('login-password').value;
+      const passHash = await hashPassword(pass);
+      const uid = emailToUid(email);
+
+      const reg = getLocalAccountsRegistry();
+      let account = reg[uid] || null;
+
+      if (!account && navigator.onLine && firebaseUrl) {
+        const cloudMeta = await fetchCloudAccountMeta(uid);
+        if (cloudMeta && cloudMeta.passwordHash) {
+          account = {
+            uid: cloudMeta.uid || uid,
+            name: cloudMeta.name || email.split('@')[0],
+            email: normalizeEmail(cloudMeta.email || email),
+            passwordHash: cloudMeta.passwordHash
+          };
+          reg[uid] = account;
+          saveLocalAccountsRegistry(reg);
+        }
+      }
+
+      if (!account) {
+        errEl.textContent = 'No encontramos una cuenta con ese Gmail. Si es tu primera vez, tocá "Crear cuenta".';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (account.passwordHash !== passHash) {
+        errEl.textContent = 'Contraseña incorrecta.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      await activateSession(account, false);
+    }
+
+    function loadUserLocalData(uid) {
+      const rawDrivers = localStorage.getItem(getUserStorageKey(uid, 'drivers'));
+      const rawPickups = localStorage.getItem(getUserStorageKey(uid, 'pickups'));
+      const rawDeliveries = localStorage.getItem(getUserStorageKey(uid, 'deliveries'));
+      const rawServices = localStorage.getItem(getUserStorageKey(uid, 'services'));
+      const rawExpenses = localStorage.getItem(getUserStorageKey(uid, 'expenses'));
+      const rawWa = localStorage.getItem(getUserStorageKey(uid, 'wa'));
+
+      drivers = rawDrivers ? JSON.parse(rawDrivers) : [...defaultDrivers];
+      if (!Array.isArray(drivers) || drivers.length === 0) drivers = [...defaultDrivers];
+      pickups = rawPickups ? JSON.parse(rawPickups) : [];
+      deliveries = rawDeliveries ? JSON.parse(rawDeliveries) : [];
+      services = rawServices ? JSON.parse(rawServices) : [];
+      expenses = rawExpenses ? JSON.parse(rawExpenses) : [];
+      waSettings = { ...defaultWaSettings, ...(rawWa ? JSON.parse(rawWa) : {}) };
+      hasPendingSync = localStorage.getItem(getUserPendingKey(uid)) === 'true';
+    }
+
+    function writeUserLocalData(uid) {
+      localStorage.setItem(getUserStorageKey(uid, 'drivers'), JSON.stringify(drivers));
+      localStorage.setItem(getUserStorageKey(uid, 'pickups'), JSON.stringify(pickups));
+      localStorage.setItem(getUserStorageKey(uid, 'deliveries'), JSON.stringify(deliveries));
+      localStorage.setItem(getUserStorageKey(uid, 'services'), JSON.stringify(services));
+      localStorage.setItem(getUserStorageKey(uid, 'expenses'), JSON.stringify(expenses));
+      localStorage.setItem(getUserStorageKey(uid, 'wa'), JSON.stringify(waSettings));
+    }
+
+    async function activateSession(userObj, isNewAccount = false) {
+      currentUser = userObj;
+      localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(userObj));
+
+      selectedDriver = 'all';
+      dateFilterMode = 'all';
+      customDateValue = '';
+      if (document.getElementById('calendarFilter')) document.getElementById('calendarFilter').value = '';
+      if (document.getElementById('clearCalBtn')) document.getElementById('clearCalBtn').classList.add('hidden');
+      updateDateButtonsUI();
+
+      loadUserLocalData(userObj.uid);
+      updateAccountCardUI();
+
+      document.getElementById('authScreen').classList.add('hidden');
+      updateSyncUI();
+      renderDriverFilters();
+      renderAllLists();
+      renderFinance();
+      renderServices();
+      renderTeam();
+      loadWaSettingsUI();
+
+      if (isNewAccount) {
+        await saveState(true);
+      } else {
+        await pullFromCloud(true);
+      }
+    }
+
+    function updateAccountCardUI() {
+      const nameEl = document.getElementById('account-card-name');
+      const emailEl = document.getElementById('account-card-email');
+      if (!currentUser) return;
+      if (nameEl) nameEl.textContent = currentUser.name || 'Cuenta activa';
+      if (emailEl) emailEl.textContent = currentUser.email || '';
+    }
+
+    function logoutUser() {
+      if (syncInterval) {
+        clearInterval(syncInterval);
+        syncInterval = null;
+      }
+      currentUser = null;
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
+      document.getElementById('registerForm').reset();
+      document.getElementById('loginForm').reset();
+      switchAuthMode('login');
+      document.getElementById('authScreen').classList.remove('hidden');
+    }
+
+    function setPendingSync(flag) {
+      hasPendingSync = flag;
+      if (currentUser && currentUser.uid) {
+        localStorage.setItem(getUserPendingKey(currentUser.uid), flag ? 'true' : 'false');
+      }
+      updateSyncUI();
+    }
+
+    async function flushCloudQueue() {
+      if (!currentUser || !currentUser.uid || !firebaseUrl) return;
+      if (!navigator.onLine) {
+        setPendingSync(true);
+        return;
+      }
+      if (isSavingToCloud) {
+        needsCloudPushAgain = true;
+        return;
+      }
+
+      isSavingToCloud = true;
+      needsCloudPushAgain = false;
+      const uid = currentUser.uid;
+
+      try {
+        const payload = {
+          account: { uid: currentUser.uid, name: currentUser.name, email: currentUser.email },
+          drivers, pickups, deliveries, services, expenses, waSettings,
+          updatedAt: Date.now()
+        };
+        const res = await fetch(`${firebaseUrl}/users/${uid}/data.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          setPendingSync(false);
+        } else {
+          setPendingSync(true);
+        }
+      } catch {
+        setPendingSync(true);
+      } finally {
+        isSavingToCloud = false;
+        if (needsCloudPushAgain) {
+          needsCloudPushAgain = false;
+          flushCloudQueue();
+        }
+      }
+    }
+
+    function saveState(forceCloudNow = false) {
+      if (!currentUser || !currentUser.uid) return;
+      lastLocalMutationAt = Date.now();
+      writeUserLocalData(currentUser.uid);
+      if (!navigator.onLine) {
+        setPendingSync(true);
+        return;
+      }
+      setPendingSync(true);
+      if (forceCloudNow) {
+        flushCloudQueue();
+      } else {
+        clearTimeout(window._cloudSaveTimer);
+        window._cloudSaveTimer = setTimeout(flushCloudQueue, 250);
+      }
+    }
+
+    async function pullFromCloud(forceEvenIfModalOpen = false) {
+      if (!currentUser || !currentUser.uid) {
+        updateSyncUI();
+        return;
+      }
+      if (!firebaseUrl || !navigator.onLine) {
+        updateSyncUI();
+        return;
+      }
+      if (isSavingToCloud || hasPendingSync) {
+        if (hasPendingSync) flushCloudQueue();
+        updateSyncUI();
+        return;
+      }
+      if (!forceEvenIfModalOpen && (isAnyModalOpen() || (Date.now() - lastLocalMutationAt < 4000))) {
+        return;
+      }
+
+      const uid = currentUser.uid;
+      try {
+        const res = await fetch(`${firebaseUrl}/users/${uid}/data.json`);
+        const data = await res.json();
+        if (data) {
+          if (Array.isArray(data.drivers) && data.drivers.length > 0) drivers = data.drivers;
+          pickups = Array.isArray(data.pickups) ? data.pickups : [];
+          deliveries = Array.isArray(data.deliveries) ? data.deliveries : [];
+          services = Array.isArray(data.services) ? data.services : [];
+          expenses = Array.isArray(data.expenses) ? data.expenses : [];
+          if (data.waSettings) waSettings = { ...defaultWaSettings, ...data.waSettings };
+
+          writeUserLocalData(uid);
+
+          renderDriverFilters();
+          renderAllLists();
+          renderFinance();
+          renderServices();
+          renderTeam();
+        } else {
+          await flushCloudQueue();
+        }
+        updateSyncUI();
+      } catch {
+        updateSyncUI();
+      }
+    }
+
+    async function forceSyncNow() {
+      const fb = document.getElementById('sync-now-feedback');
+      if (!navigator.onLine) {
+        fb.textContent = 'Sin conexión a internet. Todo queda guardado en este celular hasta que vuelva la señal.';
+        fb.className = 'text-xs text-amber-400 text-center';
+        fb.classList.remove('hidden');
+        setTimeout(() => fb.classList.add('hidden'), 4000);
+        return;
+      }
+      if (hasPendingSync) {
+        await flushCloudQueue();
+      } else {
+        await pullFromCloud(true);
+      }
+      fb.textContent = '¡Sincronizado correctamente con la nube!';
+      fb.className = 'text-xs text-emerald-400 text-center';
+      fb.classList.remove('hidden');
+      setTimeout(() => fb.classList.add('hidden'), 3000);
+    }
+
+    function updateSyncUI() {
+      const badge = document.getElementById('sync-badge');
+      const pill = document.getElementById('cloud-status-pill');
+      const input = document.getElementById('firebaseUrlInput');
+      if (input && firebaseUrl) input.value = firebaseUrl;
+
+      if (!navigator.onLine) {
+        badge.textContent = hasPendingSync ? '⚡ Sin red (Pendiente subir)' : '⚡ Modo Sin Internet';
+        badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
+        if (pill) {
+          pill.textContent = 'Offline (Guardando local)';
+          pill.className = 'text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+        return;
+      }
+
+      if (firebaseUrl) {
+        if (hasPendingSync || isSavingToCloud) {
+          badge.textContent = '↻ Guardando...';
+          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40';
+        } else {
+          badge.textContent = '● En vivo';
+          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        }
+        if (pill) {
+          pill.textContent = 'Conectado';
+          pill.className = 'text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        }
+        if (!syncInterval) {
+          syncInterval = setInterval(() => pullFromCloud(false), 12000);
+        }
+      } else {
+        badge.textContent = 'Local';
+        badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+        if (pill) {
+          pill.textContent = 'Desconectado';
+          pill.className = 'text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+      }
+    }
+
+    window.addEventListener('online', () => {
+      updateSyncUI();
+      if (hasPendingSync) flushCloudQueue();
+      else pullFromCloud(false);
+    });
+    window.addEventListener('offline', () => {
+      updateSyncUI();
+    });
+
+    async function saveFirebaseConfig() {
+      const raw = document.getElementById('firebaseUrlInput').value.trim().replace(/\/$/, '');
+      if (!raw.toLowerCase().startsWith('https://')) {
+        alert('Ingresá una URL válida que empiece con https://');
+        return;
+      }
+      firebaseUrl = raw;
+      localStorage.setItem('re_firebase_url_v6', firebaseUrl);
+      updateSyncUI();
+      await pullFromCloud(true);
+      const fb = document.getElementById('cloud-feedback');
+      fb.textContent = '¡URL guardada y conectada!';
+      fb.classList.remove('hidden');
+      setTimeout(() => fb.classList.add('hidden'), 4000);
+    }
+
+    async function resetToDefaultFirebase() {
+      firebaseUrl = DEFAULT_FIREBASE_URL;
+      localStorage.setItem('re_firebase_url_v6', firebaseUrl);
+      updateSyncUI();
+      await pullFromCloud(true);
+    }
+
+    function getBadgeClasses(color) {
+      const map = {
+        emerald: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        sky: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+        purple: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+        amber: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        rose: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+      };
+      return map[color] || map.emerald;
+    }
+
+    function applyTemplate(tpl, vars) {
+      let out = tpl || '';
+      Object.keys(vars).forEach(k => {
+        out = out.split(`{${k}}`).join(vars[k] !== undefined && vars[k] !== null ? String(vars[k]) : '');
+      });
+      return out.replace(/\n{3,}/g, '\n\n').trim();
+    }
+
+    function buildPickupWhatsAppLink(p) {
+      const waPhone = (p.phone || '').replace(/\D/g, '');
+      if (!waPhone) return '';
+      const displayDate = formatDisplayDate(p.date);
+      const namesArr = Array.isArray(p.recipients) ? p.recipients.filter(n => n && n.trim()) : [];
+      const listaNombres = namesArr.length > 0 ? namesArr.map(n => `_${n.trim()}`).join('\n') : '';
+      const entregaA = (p.deliverPlace || '').trim();
+      const entregaBloque = entregaA ? `📍 Entrega a: ${entregaA}` : '';
+      const notasBloque = p.notes ? `📝 ${p.notes}` : '';
+
+      const tpl = waSettings.pickupTemplate || DEFAULT_PICKUP_TEMPLATE;
+      const msg = applyTemplate(tpl, {
+        tienda: p.sender || '',
+        lugar_retiro: p.pickup || '',
+        entrega_a: entregaA,
+        entrega_bloque: entregaBloque,
+        lista_nombres: listaNombres,
+        fecha: displayDate,
+        horario: p.time || '',
+        paquetes: p.packages || '1 paq',
+        notas: p.notes || '',
+        notas_bloque: notasBloque
+      });
+
+      return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function buildClientWhatsAppLink(o) {
+      const waPhone = (o.phone || '').replace(/\D/g, '');
+      if (!waPhone) return '';
+      const dayName = getDayName(o.date);
+      const displayDate = formatDisplayDate(o.date);
+      const ship = Number(o.shippingCost || 0);
+      const prod = Number(o.productCost || 0);
+      const sur = Number(o.surcharge || 0);
+      const total = ship + prod + sur;
+
+      let breakdownLine = `$${ship.toLocaleString('es-AR')}`;
+      if (prod > 0) breakdownLine += ` + $${prod.toLocaleString('es-AR')} (prod)`;
+      if (sur > 0) breakdownLine += ` + $${sur.toLocaleString('es-AR')} (recargo)`;
+      if (!o.paid) breakdownLine += ' pendientes';
+
+      const recargoLinea = sur > 0 ? `⚡ 𝑟𝑒𝑐𝑎𝑟𝑔𝑜 𝑝𝑜𝑟 𝑐𝑎𝑚𝑏𝑖𝑜 𝑑𝑒 𝑓𝑒𝑐ℎ𝑎 : $${sur.toLocaleString('es-AR')}` : '';
+
+      const tpl = waSettings.deliveryTemplate || DEFAULT_DELIVERY_TEMPLATE;
+      const msg = applyTemplate(tpl, {
+        cliente: o.client || '',
+        dia: dayName || displayDate,
+        fecha: displayDate,
+        destino: o.dropoff || '',
+        horario: o.time || '',
+        notas: o.notes || '',
+        notas_coma: o.notes ? `, ${o.notes} !` : '',
+        nota_encuentro: waSettings.meetupNote || '',
+        paquetes: o.packages || '1 pedido',
+        origen: o.originRef || '',
+        origen_o_destino: o.originRef ? `${o.originRef} a ${o.dropoff}` : `Destino: ${o.dropoff}`,
+        detalle_precios: breakdownLine,
+        recargo: sur > 0 ? `$${sur.toLocaleString('es-AR')}` : '$0',
+        recargo_linea: recargoLinea,
+        total: `$${total.toLocaleString('es-AR')}`,
+        metodo: o.method || 'Transferencia',
+        alias: waSettings.alias || '',
+        titular: waSettings.holder || ''
+      });
+
+      return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function buildPendingPaymentWhatsAppLink(o) {
+      const waPhone = (o.phone || '').replace(/\D/g, '');
+      if (!waPhone) return '';
+      const displayDate = formatDisplayDate(o.date);
+      const ship = Number(o.shippingCost || 0);
+      const prod = Number(o.productCost || 0);
+      const sur = Number(o.surcharge || 0);
+      const total = ship + prod + sur;
+
+      let breakdownLine = `Envío $${ship.toLocaleString('es-AR')}`;
+      if (prod > 0) breakdownLine += ` + Producto $${prod.toLocaleString('es-AR')}`;
+      if (sur > 0) breakdownLine += ` + Recargo $${sur.toLocaleString('es-AR')}`;
+
+      const recargoLinea = sur > 0 ? `• Recargo por cambio de fecha: $${sur.toLocaleString('es-AR')}` : '';
+
+      const tpl = waSettings.pendingTemplate || DEFAULT_PENDING_TEMPLATE;
+      const msg = applyTemplate(tpl, {
+        cliente: o.client || '',
+        destino: o.dropoff || '',
+        fecha: displayDate,
+        detalle_precios: breakdownLine,
+        recargo: sur > 0 ? `$${sur.toLocaleString('es-AR')}` : '$0',
+        recargo_linea: recargoLinea,
+        total: `$${total.toLocaleString('es-AR')}`,
+        alias: waSettings.alias || '',
+        titular: waSettings.holder || ''
+      });
+
+      return `https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function onSearchInput() {
+      const val = document.getElementById('searchInput').value;
+      document.getElementById('clearSearchBtn').classList.toggle('hidden', !val);
+      renderAllLists();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderAllLists();
+    }
+
+    function renderDriverFilters() {
+      const container = document.getElementById('driver-filters');
+      let html = `<button onclick="setDriverFilter('all')" class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition ${selectedDriver === 'all' ? 'bg-white text-slate-950 border-white' : 'bg-slate-800 text-slate-300 border-slate-700'}">Todos</button>`;
+      drivers.forEach(d => {
+        const active = selectedDriver === d.id;
+        html += `<button onclick="setDriverFilter('${d.id}')" class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition ${active ? 'bg-emerald-500 text-slate-950 border-emerald-500' : 'bg-slate-800 text-slate-300 border-slate-700'}">${d.name}</button>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function setDriverFilter(id) {
+      selectedDriver = id;
+      renderDriverFilters();
+      renderAllLists();
+    }
+
+    function setDateFilter(mode) {
+      dateFilterMode = mode;
+      customDateValue = '';
+      document.getElementById('calendarFilter').value = '';
+      document.getElementById('clearCalBtn').classList.add('hidden');
+      updateDateButtonsUI();
+      renderAllLists();
+    }
+
+    function onCalendarPick() {
+      const val = document.getElementById('calendarFilter').value;
+      if (val) {
+        dateFilterMode = 'custom';
+        customDateValue = val;
+        document.getElementById('clearCalBtn').classList.remove('hidden');
+        updateDateButtonsUI();
+        renderAllLists();
+      }
+    }
+
+    function clearCalendarFilter() {
+      setDateFilter('all');
+    }
+
+    function updateDateButtonsUI() {
+      ['all', 'today', 'tomorrow'].forEach(m => {
+        const btn = document.getElementById('df-' + m);
+        btn.className = (dateFilterMode === m)
+          ? 'px-2.5 py-1 rounded-md font-medium bg-emerald-500 text-slate-950'
+          : 'px-2.5 py-1 rounded-md font-medium text-slate-300';
+      });
+      const label = document.getElementById('active-date-label');
+      if (dateFilterMode === 'all') label.textContent = 'Mostrando todas las fechas';
+      else if (dateFilterMode === 'today') label.textContent = `Fecha: Hoy (${formatDisplayDate(getLocalISODate(0))})`;
+      else if (dateFilterMode === 'tomorrow') label.textContent = `Fecha: Mañana (${formatDisplayDate(getLocalISODate(1))})`;
+      else if (dateFilterMode === 'custom') label.textContent = `Calendario: ${formatDisplayDate(customDateValue)}`;
+    }
+
+    function matchDateAndDriver(item) {
+      const todayStr = getLocalISODate(0);
+      const tomorrowStr = getLocalISODate(1);
+      const matchDriver = selectedDriver === 'all' || item.driverId === selectedDriver;
+      let matchDate = true;
+      if (dateFilterMode === 'today') matchDate = item.date === todayStr;
+      else if (dateFilterMode === 'tomorrow') matchDate = item.date === tomorrowStr;
+      else if (dateFilterMode === 'custom' && customDateValue) matchDate = item.date === customDateValue;
+      return matchDriver && matchDate;
+    }
+
+    function renderAllLists() {
+      const rawQuery = document.getElementById('searchInput').value.trim();
+      const qNorm = normalizeText(rawQuery);
+      const qDigits = rawQuery.replace(/\D/g, '');
+
+      const filteredPickups = pickups.filter(p => {
+        if (!matchDateAndDriver(p)) return false;
+        if (!qNorm) return true;
+        const driverName = drivers.find(d => d.id === p.driverId)?.name || '';
+        const recipientsText = Array.isArray(p.recipients) ? p.recipients.join(' ') : '';
+        const haystack = normalizeText([
+          p.sender, p.phone, p.pickup, p.deliverPlace, recipientsText,
+          p.packages, p.time, p.notes, driverName, formatDisplayDate(p.date)
+        ].join(' '));
+        const phoneDigits = String(p.phone || '').replace(/\D/g, '');
+        return haystack.includes(qNorm) || (qDigits.length >= 2 && phoneDigits.includes(qDigits));
+      });
+
+      const filteredDeliveries = deliveries.filter(d => {
+        if (!matchDateAndDriver(d)) return false;
+        if (!qNorm) return true;
+        const driverName = drivers.find(x => x.id === d.driverId)?.name || '';
+        const total = getOrderTotal(d);
+        const haystack = normalizeText([
+          d.client, d.phone, d.dropoff, d.originRef, d.packages,
+          d.time, d.notes, d.batchId, d.method, driverName, total, formatDisplayDate(d.date)
+        ].join(' '));
+        const phoneDigits = String(d.phone || '').replace(/\D/g, '');
+        return haystack.includes(qNorm) || (qDigits.length >= 2 && phoneDigits.includes(qDigits));
+      });
+
+      if (currentTab === 'pickups') {
+        document.getElementById('orders-count').textContent = `${filteredPickups.length} retiro${filteredPickups.length === 1 ? '' : 's'}`;
+      } else if (currentTab === 'deliveries') {
+        document.getElementById('orders-count').textContent = `${filteredDeliveries.length} entrega${filteredDeliveries.length === 1 ? '' : 's'}`;
+      }
+
+      renderPickupsList(filteredPickups, qNorm);
+      renderDeliveriesList(filteredDeliveries, qNorm);
+    }
+
+    function renderPickupsList(listData, activeQuery = '') {
+      const list = document.getElementById('pickups-list');
+      if (listData.length === 0) {
+        if (activeQuery) {
+          list.innerHTML = `<div class="text-center py-10 text-slate-500 text-sm">No se encontraron retiros para "<strong>${activeQuery}</strong>".<br><button onclick="clearSearch()" class="mt-2 text-emerald-400 underline text-xs">Limpiar búsqueda</button></div>`;
+        } else {
+          list.innerHTML = `<div class="text-center py-10 text-slate-500 text-sm">No hay retiros anotados.<br>Tocá <strong>+ Anotar Retiro</strong> para cargar uno.</div>`;
+        }
+        return;
+      }
+
+      const sortedPickups = [
+        ...listData.filter(p => !p.pickedUp),
+        ...listData.filter(p => p.pickedUp)
+      ];
+      const pendingPickupsCount = listData.filter(p => !p.pickedUp).length;
+      const donePickupsCount = listData.filter(p => p.pickedUp).length;
+
+      list.innerHTML = sortedPickups.map((p, idx) => {
+        const showPickupDivider = p.pickedUp && idx === pendingPickupsCount && pendingPickupsCount > 0;
+        const driver = drivers.find(d => d.id === p.driverId) || { name: 'Sin asignar', color: 'emerald' };
+        const displayDate = formatDisplayDate(p.date);
+        const waPickupLink = buildPickupWhatsAppLink(p);
+        const namesArr = Array.isArray(p.recipients) ? p.recipients.filter(n => n && n.trim()) : [];
+
+        return `
+          ${showPickupDivider ? `
+            <div class="flex items-center gap-2 pt-3 pb-1">
+              <div class="h-px flex-1 bg-slate-800"></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">✓ Ya retirados (${donePickupsCount})</span>
+              <div class="h-px flex-1 bg-slate-800"></div>
+            </div>
+          ` : ''}
+          <div class="bg-slate-800/90 border ${p.pickedUp ? 'border-slate-800 opacity-65' : 'border-slate-700'} rounded-2xl p-4 space-y-3 transition">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${getBadgeClasses(driver.color)}">${driver.name}</span>
+                  <span class="text-xs text-slate-300 font-semibold">📅 ${displayDate}</span>
+                  ${p.time ? `<span class="text-xs text-slate-400">• ${p.time}</span>` : ''}
+                </div>
+                <h3 class="font-bold text-white text-base mt-1.5 ${p.pickedUp ? 'line-through text-slate-400' : ''}">
+                  Retirar en: ${p.pickup}
+                </h3>
+                <p class="text-xs text-slate-400">Despacha: <span class="text-slate-200 font-semibold">${p.sender || 'Sin especificar'}</span></p>
+                ${p.phone ? `<p class="text-xs text-emerald-400 mt-0.5">📱 WA: ${p.phone}</p>` : ''}
+              </div>
+              <span class="text-xs bg-slate-900 text-emerald-300 px-2.5 py-1 rounded-lg border border-slate-700 font-bold shrink-0">
+                📦 ${p.packages || '1 paq'}
+              </span>
+            </div>
+
+            ${(p.deliverPlace || namesArr.length > 0) ? `
+              <div class="bg-slate-900/90 rounded-xl p-2.5 text-xs border border-emerald-500/20 space-y-1">
+                ${p.deliverPlace ? `<p class="text-emerald-300 font-bold">🚚 Entrega a: <span class="text-white font-semibold">${p.deliverPlace}</span></p>` : ''}
+                ${namesArr.length > 0 ? `<p class="text-slate-300 font-mono text-[11px]">${namesArr.map(n => `_${n.trim()}`).join(' • ')}</p>` : ''}
+              </div>
+            ` : ''}
+
+            ${p.notes ? `
+              <div class="bg-slate-900/80 rounded-xl p-2.5 text-xs border border-slate-800">
+                <p class="text-slate-300">📝 ${p.notes}</p>
+              </div>
+            ` : ''}
+
+            <div class="grid ${waPickupLink ? 'grid-cols-4' : 'grid-cols-3'} gap-2 pt-1">
+              <button onclick="togglePickedUp('${p.id}')" class="py-2 px-2 rounded-xl text-xs font-bold border transition ${p.pickedUp ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-emerald-500 text-slate-950 border-emerald-500'}">
+                ${p.pickedUp ? '✓ Listo' : 'Retirado'}
+              </button>
+              ${waPickupLink ? `
+                <a href="${waPickupLink}" target="_blank" class="py-2 px-2 rounded-xl text-xs font-bold bg-green-600 hover:bg-green-500 text-white text-center transition">
+                  WA
+                </a>
+              ` : ''}
+              <button onclick="openPickupModal('${p.id}')" class="py-2 px-2 rounded-xl text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-100 border border-slate-600 transition">
+                ✏️ Editar
+              </button>
+              <button onclick="deletePickup('${p.id}')" class="py-2 px-2 rounded-xl text-xs font-bold bg-rose-950/60 hover:bg-rose-900 text-rose-400 border border-rose-900/60 transition">
+                🗑️ Borrar
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDeliveriesList(listData, activeQuery = '') {
+      const list = document.getElementById('deliveries-list');
+      const batchTotals = {};
+      deliveries.forEach(o => {
+        if (o.batchId) batchTotals[o.batchId] = (batchTotals[o.batchId] || 0) + 1;
+      });
+
+      if (listData.length === 0) {
+        if (activeQuery) {
+          list.innerHTML = `<div class="text-center py-10 text-slate-500 text-sm">No se encontraron entregas para "<strong>${activeQuery}</strong>".<br><button onclick="clearSearch()" class="mt-2 text-sky-400 underline text-xs">Limpiar búsqueda</button></div>`;
+        } else {
+          list.innerHTML = `<div class="text-center py-10 text-slate-500 text-sm">No hay entregas anotadas.<br>Tocá <strong>+ Anotar Entrega</strong> para cargar una.</div>`;
+        }
+        return;
+      }
+
+      const sortedDeliveries = [
+        ...listData.filter(o => !o.delivered),
+        ...listData.filter(o => o.delivered)
+      ];
+      const pendingDeliveriesCount = listData.filter(o => !o.delivered).length;
+      const doneDeliveriesCount = listData.filter(o => o.delivered).length;
+
+      list.innerHTML = sortedDeliveries.map((o, idx) => {
+        const showCompletedDivider = o.delivered && idx === pendingDeliveriesCount && pendingDeliveriesCount > 0;
+        const driver = drivers.find(d => d.id === o.driverId) || { name: 'Sin asignar', color: 'sky' };
+        const ship = Number(o.shippingCost || 0);
+        const prod = Number(o.productCost || 0);
+        const sur = Number(o.surcharge || 0);
+        const total = ship + prod + sur;
+        const displayDate = formatDisplayDate(o.date);
+        const waLink = buildClientWhatsAppLink(o);
+        const batchCount = o.batchId ? batchTotals[o.batchId] : 0;
+
+        return `
+          ${showCompletedDivider ? `
+            <div class="flex items-center gap-2 pt-3 pb-1">
+              <div class="h-px flex-1 bg-slate-800"></div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">✓ Ya entregados (${doneDeliveriesCount})</span>
+              <div class="h-px flex-1 bg-slate-800"></div>
+            </div>
+          ` : ''}
+          <div class="bg-slate-800/90 border ${o.delivered ? 'border-slate-800 opacity-65' : 'border-slate-700'} rounded-2xl p-4 space-y-3 transition">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${getBadgeClasses(driver.color)}">${driver.name}</span>
+                  <span class="text-xs text-slate-300 font-semibold">📅 ${displayDate}</span>
+                  ${o.time ? `<span class="text-xs text-slate-400">• ${o.time}</span>` : ''}
+                  ${batchCount > 1 ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">🔗 Lote (${batchCount})</span>` : ''}
+                </div>
+                <h3 class="font-bold text-white text-base mt-1.5 ${o.delivered ? 'line-through text-slate-400' : ''}">
+                  Recibe: ${o.client}
+                </h3>
+                ${o.phone ? `<p class="text-xs text-sky-400">📱 WA: ${o.phone}</p>` : ''}
+                ${o.originRef ? `<p class="text-xs text-slate-400">Ref / Origen: <span class="text-slate-300 font-medium">${o.originRef}</span></p>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="openDeliveryModal('${o.id}')" class="text-xs bg-slate-900 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 font-semibold">
+                  ✏️ Editar
+                </button>
+                <button onclick="deleteDelivery('${o.id}')" class="text-xs bg-rose-950/70 hover:bg-rose-900 text-rose-400 px-2 py-1 rounded-lg border border-rose-900/60 font-semibold" title="Borrar entrega">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-slate-900/80 rounded-xl p-2.5 space-y-1.5 text-xs border border-slate-800">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <span class="text-sky-400 font-bold">ENTREGA EN:</span>
+                  <span class="text-slate-100 font-semibold">${o.dropoff}</span>
+                  <span class="text-slate-400">(${o.packages || '1 paq'})</span>
+                </div>
+                <button onclick="addAnotherFromDelivery('${o.id}')" class="text-[11px] text-amber-300 hover:text-amber-200 font-semibold underline shrink-0">
+                  + Otro destino
+                </button>
+              </div>
+              ${o.notes ? `<p class="text-amber-200/90 pt-1 border-t border-slate-800/80">📍 ${o.notes}</p>` : ''}
+            </div>
+
+            <div class="flex items-center justify-between text-xs bg-slate-900/40 px-3 py-2 rounded-xl">
+              <div>
+                <span class="text-slate-400">Envío:</span> <strong class="text-white">$${ship.toLocaleString('es-AR')}</strong>
+                ${prod > 0 ? `<span class="text-slate-500 mx-1">+</span> <span class="text-sky-400">Prod: $${prod.toLocaleString('es-AR')}</span>` : ''}
+                ${sur > 0 ? `<span class="text-slate-500 mx-1">+</span> <span class="text-amber-300 font-semibold">Recargo: $${sur.toLocaleString('es-AR')}</span>` : ''}
+                <div class="text-[11px] text-slate-400 mt-0.5">${o.method} • ${o.collectAt}</div>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] uppercase text-slate-400 block">Total</span>
+                <span class="text-sm font-extrabold text-emerald-400">$${total.toLocaleString('es-AR')}</span>
+              </div>
+            </div>
+
+            <div class="grid ${waLink ? 'grid-cols-3' : 'grid-cols-2'} gap-2 pt-1">
+              <button onclick="togglePaid('${o.id}')" class="py-2 px-2 rounded-xl text-xs font-bold border transition ${o.paid ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'}">
+                ${o.paid ? '✓ Pagado' : '⏳ Pendiente'}
+              </button>
+
+              <button onclick="toggleDelivered('${o.id}')" class="py-2 px-2 rounded-xl text-xs font-bold border transition ${o.delivered ? 'bg-sky-500/20 text-sky-300 border-sky-500/40' : 'bg-slate-700/60 text-slate-200 border-slate-600'}">
+                ${o.delivered ? '✓ Entregado' : 'Entregar'}
+              </button>
+
+              ${waLink ? `
+                <a href="${waLink}" target="_blank" class="py-2 px-2 rounded-xl text-xs font-bold bg-green-600 hover:bg-green-500 text-white text-center transition">
+                  WhatsApp
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function togglePickedUp(id) {
+      pickups = pickups.map(p => p.id === id ? { ...p, pickedUp: !p.pickedUp } : p);
+      renderAllLists();
+      saveState();
+    }
+
+    function deletePickup(id) {
+      if (confirm('¿Eliminar este retiro?')) {
+        pickups = pickups.filter(p => p.id !== id);
+        renderAllLists();
+        saveState();
+      }
+    }
+
+    function deletePickupFromModal() {
+      const id = document.getElementById('p-editId').value;
+      if (!id) return;
+      if (confirm('¿Eliminar este retiro?')) {
+        pickups = pickups.filter(p => p.id !== id);
+        renderAllLists();
+        saveState();
+        closePickupModal();
+      }
+    }
+
+    function togglePaid(id) {
+      deliveries = deliveries.map(o => o.id === id ? { ...o, paid: !o.paid } : o);
+      renderAllLists();
+      renderFinance();
+      if (!document.getElementById('debtorsModal').classList.contains('hidden')) {
+        renderDebtorsList();
+      }
+      saveState();
+    }
+
+    function toggleDelivered(id) {
+      deliveries = deliveries.map(o => o.id === id ? { ...o, delivered: !o.delivered } : o);
+      renderAllLists();
+      saveState();
+    }
+
+    function deleteDelivery(id) {
+      if (confirm('¿Eliminar esta entrega?')) {
+        deliveries = deliveries.filter(o => o.id !== id);
+        renderAllLists();
+        renderFinance();
+        saveState();
+      }
+    }
+
+    function deleteDeliveryFromModal() {
+      const id = document.getElementById('d-editId').value;
+      if (!id) return;
+      if (confirm('¿Eliminar esta entrega?')) {
+        deliveries = deliveries.filter(o => o.id !== id);
+        renderAllLists();
+        renderFinance();
+        saveState();
+        closeDeliveryModal();
+      }
+    }
+
+    let financePeriod = 'month';
+    let financeAnchorDate = getLocalISODate(0);
+    let financeTypeFilter = 'all';
+
+    function parseISOToLocalDate(isoStr) {
+      const [y, m, d] = (isoStr || getLocalISODate(0)).split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function dateObjToISO(dt) {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getWeekBounds(isoStr) {
+      const dt = parseISOToLocalDate(isoStr);
+      const dayOfWeek = dt.getDay();
+      const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      const start = new Date(dt);
+      start.setDate(dt.getDate() + diffToMonday);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return { startISO: dateObjToISO(start), endISO: dateObjToISO(end) };
+    }
+
+    function setFinancePeriod(period) {
+      financePeriod = period;
+      financeAnchorDate = getLocalISODate(0);
+      renderFinance();
+    }
+
+    function setFinanceTypeFilter(t) {
+      financeTypeFilter = t;
+      renderFinance();
+    }
+
+    function shiftFinancePeriod(step) {
+      const dt = parseISOToLocalDate(financeAnchorDate);
+      if (financePeriod === 'day') dt.setDate(dt.getDate() + step);
+      else if (financePeriod === 'week') dt.setDate(dt.getDate() + step * 7);
+      else if (financePeriod === 'month') dt.setMonth(dt.getMonth() + step);
+      else if (financePeriod === 'year') dt.setFullYear(dt.getFullYear() + step);
+      financeAnchorDate = dateObjToISO(dt);
+      renderFinance();
+    }
+
+    function isDateInFinancePeriod(itemDate) {
+      if (!itemDate) return false;
+      if (financePeriod === 'all') return true;
+      if (financePeriod === 'day') return itemDate === financeAnchorDate;
+      if (financePeriod === 'week') {
+        const { startISO, endISO } = getWeekBounds(financeAnchorDate);
+        return itemDate >= startISO && itemDate <= endISO;
+      }
+      if (financePeriod === 'month') return itemDate.slice(0, 7) === financeAnchorDate.slice(0, 7);
+      if (financePeriod === 'year') return itemDate.slice(0, 4) === financeAnchorDate.slice(0, 4);
+      return true;
+    }
+
+    function updateFinancePeriodUI() {
+      ['day', 'week', 'month', 'year', 'all'].forEach(p => {
+        const btn = document.getElementById('fp-' + p);
+        if (!btn) return;
+        btn.className = (financePeriod === p)
+          ? 'py-1.5 rounded-lg font-bold bg-emerald-500 text-slate-950 transition'
+          : 'py-1.5 rounded-lg font-bold text-slate-300 transition';
+      });
+
+      ['all', 'in', 'out'].forEach(t => {
+        const btn = document.getElementById('ft-' + t);
+        if (!btn) return;
+        if (financeTypeFilter === t) {
+          btn.className = t === 'out'
+            ? 'px-2 py-0.5 rounded-md font-bold bg-rose-500 text-slate-950'
+            : t === 'in'
+              ? 'px-2 py-0.5 rounded-md font-bold bg-emerald-500 text-slate-950'
+              : 'px-2 py-0.5 rounded-md font-bold bg-white text-slate-950';
+        } else {
+          btn.className = 'px-2 py-0.5 rounded-md font-bold bg-slate-700 text-slate-300';
+        }
+      });
+
+      const nav = document.getElementById('fin-period-navigator');
+      const rangeLabel = document.getElementById('fin-period-range-label');
+      const subtitle = document.getElementById('fin-period-subtitle');
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const dt = parseISOToLocalDate(financeAnchorDate);
+
+      if (financePeriod === 'all') {
+        nav.classList.add('hidden');
+        subtitle.textContent = 'Histórico completo de todos los movimientos';
+      } else {
+        nav.classList.remove('hidden');
+        if (financePeriod === 'day') {
+          rangeLabel.textContent = `${formatDisplayDate(financeAnchorDate)} (${getDayName(financeAnchorDate)})`;
+          subtitle.textContent = 'Movimientos del día seleccionado';
+        } else if (financePeriod === 'week') {
+          const { startISO, endISO } = getWeekBounds(financeAnchorDate);
+          rangeLabel.textContent = `Semana ${startISO.slice(8, 10)}/${startISO.slice(5, 7)} al ${endISO.slice(8, 10)}/${endISO.slice(5, 7)}`;
+          subtitle.textContent = 'Movimientos de la semana (Lun a Dom)';
+        } else if (financePeriod === 'month') {
+          rangeLabel.textContent = `${months[dt.getMonth()]} ${dt.getFullYear()}`;
+          subtitle.textContent = 'Movimientos del mes seleccionado';
+        } else if (financePeriod === 'year') {
+          rangeLabel.textContent = `Año ${dt.getFullYear()}`;
+          subtitle.textContent = 'Balance anual completo';
+        }
+      }
+    }
+
+    function renderFinance() {
+      updateFinancePeriodUI();
+
+      let collected = 0, shippingOnly = 0, productTotal = 0;
+      let cashIn = 0, transferIn = 0;
+      let cashOut = 0, transferOut = 0;
+      let incomeCount = 0, expenseCount = 0;
+
+      const periodPaidDeliveries = deliveries.filter(o => o.paid && isDateInFinancePeriod(o.date));
+      const periodExpenses = expenses.filter(ex => isDateInFinancePeriod(ex.date));
+
+      periodPaidDeliveries.forEach(o => {
+        const ship = Number(o.shippingCost || 0) + Number(o.surcharge || 0);
+        const prod = Number(o.productCost || 0);
+        const tot = ship + prod;
+        collected += tot;
+        shippingOnly += ship;
+        productTotal += prod;
+        incomeCount += 1;
+        if (o.method === 'Efectivo') cashIn += tot;
+        else transferIn += tot;
+      });
+
+      periodExpenses.forEach(ex => {
+        const amt = Number(ex.amount || 0);
+        expenseCount += 1;
+        if (ex.method === 'Efectivo') cashOut += amt;
+        else transferOut += amt;
+      });
+
+      const totalExpenses = cashOut + transferOut;
+      const netBalance = collected - totalExpenses;
+      const cashNet = cashIn - cashOut;
+      const transferNet = transferIn - transferOut;
+
+      const unpaidOrders = deliveries.filter(o => !o.paid);
+      const pendingGlobal = unpaidOrders.reduce((acc, o) => acc + getOrderTotal(o), 0);
+
+      document.getElementById('fin-collected').textContent = '+$' + collected.toLocaleString('es-AR');
+      document.getElementById('fin-income-count').textContent = `${incomeCount} cobro${incomeCount === 1 ? '' : 's'}`;
+      document.getElementById('fin-expenses').textContent = '-$' + totalExpenses.toLocaleString('es-AR');
+      document.getElementById('fin-expense-count').textContent = `${expenseCount} salida${expenseCount === 1 ? '' : 's'}`;
+
+      const netEl = document.getElementById('fin-net');
+      netEl.textContent = (netBalance < 0 ? '-$' : '$') + Math.abs(netBalance).toLocaleString('es-AR');
+      netEl.className = `text-base font-extrabold break-words ${netBalance >= 0 ? 'text-white' : 'text-rose-400'}`;
+
+      document.getElementById('fin-cash-net').textContent = (cashNet < 0 ? '-$' : '$') + Math.abs(cashNet).toLocaleString('es-AR');
+      document.getElementById('fin-cash-in').textContent = `Ingresos: +$${cashIn.toLocaleString('es-AR')}`;
+      document.getElementById('fin-cash-out').textContent = `Gastos: -$${cashOut.toLocaleString('es-AR')}`;
+
+      document.getElementById('fin-transfer-net').textContent = (transferNet < 0 ? '-$' : '$') + Math.abs(transferNet).toLocaleString('es-AR');
+      document.getElementById('fin-transfer-in').textContent = `Ingresos: +$${transferIn.toLocaleString('es-AR')}`;
+      document.getElementById('fin-transfer-out').textContent = `Gastos: -$${transferOut.toLocaleString('es-AR')}`;
+
+      const totalIn = cashIn + transferIn;
+      const cashPct = totalIn > 0 ? Math.round((cashIn / totalIn) * 100) : 0;
+      const trPct = totalIn > 0 ? Math.round((transferIn / totalIn) * 100) : 0;
+      document.getElementById('fin-cash-bar').style.width = `${cashPct}%`;
+      document.getElementById('fin-transfer-bar').style.width = `${trPct}%`;
+
+      document.getElementById('fin-shipping-only').textContent = 'Envíos: $' + shippingOnly.toLocaleString('es-AR');
+      document.getElementById('fin-product').textContent = 'Prod: $' + productTotal.toLocaleString('es-AR');
+
+      document.getElementById('fin-pending').textContent = '$' + pendingGlobal.toLocaleString('es-AR');
+      document.getElementById('fin-debtors-count').textContent = `${unpaidOrders.length} pago${unpaidOrders.length === 1 ? '' : 's'} pendiente${unpaidOrders.length === 1 ? '' : 's'} en total`;
+
+      const driverHtml = drivers.map(d => {
+        const dCol = periodPaidDeliveries.filter(o => o.driverId === d.id).reduce((acc, o) => acc + getOrderTotal(o), 0);
+        const dExp = periodExpenses.filter(ex => ex.driverId === d.id).reduce((acc, ex) => acc + Number(ex.amount || 0), 0);
+        const dPen = deliveries.filter(o => o.driverId === d.id && !o.paid && isDateInFinancePeriod(o.date)).reduce((acc, o) => acc + getOrderTotal(o), 0);
+        return `
+          <div class="bg-slate-800 border border-slate-700 p-3 rounded-xl flex items-center justify-between">
+            <div>
+              <p class="font-bold text-sm text-white">${d.name}</p>
+              <p class="text-[11px] text-slate-400">Neto período: <strong class="text-slate-200">$${(dCol - dExp).toLocaleString('es-AR')}</strong></p>
+            </div>
+            <div class="text-right text-xs">
+              <p class="text-emerald-400 font-bold">+$${dCol.toLocaleString('es-AR')}</p>
+              ${dExp > 0 ? `<p class="text-rose-400 font-semibold">-$${dExp.toLocaleString('es-AR')}</p>` : ''}
+              ${dPen > 0 ? `<p class="text-amber-400 text-[11px]">Por cobrar: $${dPen.toLocaleString('es-AR')}</p>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('fin-drivers').innerHTML = driverHtml;
+
+      const qSearch = normalizeText(document.getElementById('finSearchInput')?.value || '');
+      const movements = [];
+
+      if (financeTypeFilter === 'all' || financeTypeFilter === 'in') {
+        periodPaidDeliveries.forEach(o => {
+          const driverName = drivers.find(d => d.id === o.driverId)?.name || 'Sin asignar';
+          movements.push({
+            kind: 'in',
+            id: o.id,
+            date: o.date,
+            title: `${o.client} → ${o.dropoff}`,
+            subtitle: `${driverName}${o.originRef ? ' • ' + o.originRef : ''}`,
+            amount: getOrderTotal(o),
+            method: o.method || 'Transferencia'
+          });
+        });
+      }
+
+      if (financeTypeFilter === 'all' || financeTypeFilter === 'out') {
+        periodExpenses.forEach(ex => {
+          const driverName = drivers.find(d => d.id === ex.driverId)?.name || 'General';
+          movements.push({
+            kind: 'out',
+            id: ex.id,
+            date: ex.date,
+            title: ex.title,
+            subtitle: `${ex.category || 'Gasto'} • ${driverName}${ex.notes ? ' • ' + ex.notes : ''}`,
+            amount: Number(ex.amount || 0),
+            method: ex.method || 'Efectivo'
+          });
+        });
+      }
+
+      movements.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      const filteredMovements = movements.filter(m => {
+        if (!qSearch) return true;
+        const hay = normalizeText(`${m.title} ${m.subtitle} ${m.method} ${m.amount} ${formatDisplayDate(m.date)}`);
+        return hay.includes(qSearch);
+      });
+
+      const movContainer = document.getElementById('fin-movements-list');
+      if (filteredMovements.length === 0) {
+        movContainer.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">No hay movimientos de plata registrados en este período.</p>`;
+        return;
+      }
+
+      movContainer.innerHTML = filteredMovements.map(m => {
+        const isIncome = m.kind === 'in';
+        const methodBadge = m.method === 'Efectivo'
+          ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">EF</span>'
+          : '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">TR</span>';
+
+        return `
+          <div onclick="${isIncome ? `openDeliveryModal('${m.id}')` : `openExpenseModal('${m.id}')`}" class="cursor-pointer bg-slate-900/90 hover:bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2 transition">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-semibold text-slate-400">${formatDisplayDate(m.date)}</span>
+                ${methodBadge}
+              </div>
+              <p class="text-xs font-bold text-white truncate mt-0.5">${m.title}</p>
+              <p class="text-[11px] text-slate-400 truncate">${m.subtitle}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-xs font-extrabold ${isIncome ? 'text-emerald-400' : 'text-rose-400'}">
+                ${isIncome ? '+' : '-'}$${m.amount.toLocaleString('es-AR')}
+              </span>
+              <span class="block text-[10px] text-slate-500">${isIncome ? 'Cobro' : 'Editar ›'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openExpenseModal(editId = '') {
+      const select = document.getElementById('e-driver');
+      select.innerHTML = drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      document.getElementById('e-editId').value = editId;
+      const delBtn = document.getElementById('btn-modal-delete-expense');
+
+      if (editId) {
+        const ex = expenses.find(x => x.id === editId);
+        if (!ex) return;
+        document.getElementById('expenseModalTitle').textContent = '✏️ Editar Gasto / Salida';
+        delBtn.classList.remove('hidden');
+        document.getElementById('e-title').value = ex.title || '';
+        document.getElementById('e-amount').value = ex.amount || '';
+        document.getElementById('e-date').value = ex.date || getLocalISODate(0);
+        document.getElementById('e-method').value = ex.method || 'Efectivo';
+        document.getElementById('e-category').value = ex.category || 'Transporte / Nafta / SUBE';
+        document.getElementById('e-driver').value = ex.driverId || drivers[0]?.id;
+        document.getElementById('e-notes').value = ex.notes || '';
+      } else {
+        document.getElementById('expenseModalTitle').textContent = '💸 Anotar Gasto / Salida';
+        delBtn.classList.add('hidden');
+        document.getElementById('e-title').value = '';
+        document.getElementById('e-amount').value = '';
+        document.getElementById('e-date').value = getLocalISODate(0);
+        document.getElementById('e-method').value = 'Efectivo';
+        document.getElementById('e-category').value = 'Transporte / Nafta / SUBE';
+        document.getElementById('e-notes').value = '';
+      }
+
+      document.getElementById('expenseModal').classList.remove('hidden');
+      document.getElementById('expenseModal').classList.add('flex');
+    }
+
+    function closeExpenseModal() {
+      document.getElementById('expenseModal').classList.add('hidden');
+      document.getElementById('expenseModal').classList.remove('flex');
+    }
+
+    function handleExpenseSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('e-editId').value;
+      const record = {
+        id: editId || ('exp' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+        title: document.getElementById('e-title').value.trim(),
+        amount: Number(document.getElementById('e-amount').value) || 0,
+        date: document.getElementById('e-date').value,
+        method: document.getElementById('e-method').value,
+        category: document.getElementById('e-category').value,
+        driverId: document.getElementById('e-driver').value,
+        notes: document.getElementById('e-notes').value.trim()
+      };
+
+      if (editId) expenses = expenses.map(x => x.id === editId ? record : x);
+      else expenses.unshift(record);
+
+      renderFinance();
+      closeExpenseModal();
+      saveState();
+    }
+
+    function deleteExpenseFromModal() {
+      const id = document.getElementById('e-editId').value;
+      if (!id) return;
+      if (confirm('¿Eliminar este gasto / salida de caja?')) {
+        expenses = expenses.filter(x => x.id !== id);
+        renderFinance();
+        closeExpenseModal();
+        saveState();
+      }
+    }
+
+    function openDebtorsModal() {
+      renderDebtorsList();
+      document.getElementById('debtorsModal').classList.remove('hidden');
+      document.getElementById('debtorsModal').classList.add('flex');
+    }
+
+    function closeDebtorsModal() {
+      document.getElementById('debtorsModal').classList.add('hidden');
+      document.getElementById('debtorsModal').classList.remove('flex');
+    }
+
+    function renderDebtorsList() {
+      const container = document.getElementById('debtors-list');
+      const unpaid = deliveries.filter(o => !o.paid);
+      if (unpaid.length === 0) {
+        container.innerHTML = `<p class="text-center text-sm text-emerald-400 py-6">¡No hay deudas pendientes! Todo está cobrado.</p>`;
+        return;
+      }
+
+      container.innerHTML = unpaid.map(o => {
+        const total = getOrderTotal(o);
+        const waLink = buildPendingPaymentWhatsAppLink(o);
+        return `
+          <div class="bg-slate-800 border border-slate-700 p-3.5 rounded-2xl space-y-2">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="font-bold text-white text-sm">${o.client}</p>
+                <p class="text-xs text-slate-400">📅 ${formatDisplayDate(o.date)} • Destino: ${o.dropoff}</p>
+                ${Number(o.surcharge || 0) > 0 ? `<p class="text-[11px] text-amber-300 mt-0.5">Incluye recargo: $${Number(o.surcharge).toLocaleString('es-AR')}</p>` : ''}
+                ${o.phone ? `<p class="text-xs text-sky-400 mt-0.5">📱 WA: ${o.phone}</p>` : `<p class="text-xs text-slate-500 mt-0.5">Sin teléfono cargado</p>`}
+              </div>
+              <span class="text-base font-extrabold text-amber-400">$${total.toLocaleString('es-AR')}</span>
+            </div>
+            <div class="flex gap-2 pt-1">
+              <button onclick="togglePaid('${o.id}')" class="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold py-1.5 rounded-xl">
+                ✓ Marcar como Pagado
+              </button>
+              ${waLink ? `<a href="${waLink}" target="_blank" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl">Reclamar WA</a>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderServices() {
+      const surInput = document.getElementById('cfg-surcharge-amount');
+      if (surInput) surInput.value = waSettings.surchargeDefault || 0;
+
+      const list = document.getElementById('services-list');
+      if (services.length === 0) {
+        list.innerHTML = `<div class="bg-slate-800/50 border border-dashed border-slate-700 rounded-2xl p-6 text-center space-y-2">
+          <p class="text-sm text-slate-300 font-semibold">Todavía no cargaste tarifas</p>
+          <p class="text-xs text-slate-400">Tocá <strong>+ Agregar</strong> arriba para anotar los precios por zona, tamaño de paquete o bulto.</p>
+        </div>`;
+        return;
+      }
+
+      list.innerHTML = services.map(s => `
+        <div class="bg-slate-800 border border-slate-700 p-3.5 rounded-2xl flex items-center justify-between gap-2">
+          <div>
+            <p class="font-bold text-white text-sm">${s.name}</p>
+            ${s.desc ? `<p class="text-xs text-slate-400 mt-0.5">${s.desc}</p>` : ''}
+            <p class="text-emerald-400 font-extrabold text-sm mt-1">$${Number(s.price).toLocaleString('es-AR')}</p>
+          </div>
+          <div class="flex gap-1.5 shrink-0">
+            <button onclick="openServiceModal('${s.id}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg">✏️ Editar</button>
+            <button onclick="deleteService('${s.id}')" class="text-xs bg-rose-950/70 text-rose-400 px-2.5 py-1.5 rounded-lg">Borrar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function saveSurchargeConfig() {
+      const val = Number(document.getElementById('cfg-surcharge-amount').value) || 0;
+      waSettings.surchargeDefault = val;
+      saveState();
+      const fb = document.getElementById('surcharge-cfg-feedback');
+      fb.classList.remove('hidden');
+      setTimeout(() => fb.classList.add('hidden'), 3000);
+    }
+
+    function openServiceModal(editId = '') {
+      document.getElementById('s-editId').value = editId;
+      if (editId) {
+        const item = services.find(x => x.id === editId);
+        document.getElementById('serviceModalTitle').textContent = 'Editar Tarifa';
+        document.getElementById('s-name').value = item.name;
+        document.getElementById('s-price').value = item.price;
+        document.getElementById('s-desc').value = item.desc || '';
+      } else {
+        document.getElementById('serviceModalTitle').textContent = 'Agregar Servicio / Tarifa';
+        document.getElementById('s-name').value = '';
+        document.getElementById('s-price').value = '';
+        document.getElementById('s-desc').value = '';
+      }
+      document.getElementById('serviceModal').classList.remove('hidden');
+      document.getElementById('serviceModal').classList.add('flex');
+    }
+
+    function closeServiceModal() {
+      document.getElementById('serviceModal').classList.add('hidden');
+      document.getElementById('serviceModal').classList.remove('flex');
+    }
+
+    function saveService(e) {
+      e.preventDefault();
+      const editId = document.getElementById('s-editId').value;
+      const name = document.getElementById('s-name').value.trim();
+      const price = Number(document.getElementById('s-price').value) || 0;
+      const desc = document.getElementById('s-desc').value.trim();
+
+      if (editId) services = services.map(s => s.id === editId ? { ...s, name, price, desc } : s);
+      else services.push({ id: 'srv' + Date.now(), name, price, desc });
+
+      renderServices();
+      closeServiceModal();
+      saveState();
+    }
+
+    function deleteService(id) {
+      if (confirm('¿Borrar esta tarifa?')) {
+        services = services.filter(s => s.id !== id);
+        renderServices();
+        saveState();
+      }
+    }
+
+    function renderTeam() {
+      const list = document.getElementById('team-list');
+      list.innerHTML = drivers.map(d => `
+        <div class="bg-slate-900/80 border border-slate-700 p-3 rounded-xl flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-${d.color}-400"></span>
+            <span class="font-bold text-white text-xs">${d.name}</span>
+          </div>
+          <div class="flex gap-1.5">
+            <button onclick="renameDriver('${d.id}')" class="text-[11px] bg-slate-700 px-2 py-1 rounded-lg text-slate-200">Editar</button>
+            ${drivers.length > 1 ? `<button onclick="removeDriver('${d.id}')" class="text-[11px] bg-rose-950 text-rose-400 px-2 py-1 rounded-lg">Quitar</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renameDriver(id) {
+      const driver = drivers.find(d => d.id === id);
+      const newName = prompt('Nuevo nombre para la persona:', driver.name);
+      if (newName && newName.trim()) {
+        driver.name = newName.trim();
+        renderTeam();
+        renderDriverFilters();
+        renderAllLists();
+        saveState();
+      }
+    }
+
+    function removeDriver(id) {
+      if (confirm('¿Quitar esta persona de la lista?')) {
+        drivers = drivers.filter(d => d.id !== id);
+        if (selectedDriver === id) selectedDriver = 'all';
+        renderTeam();
+        renderDriverFilters();
+        renderAllLists();
+        saveState();
+      }
+    }
+
+    function handleFabClick() {
+      if (currentTab === 'deliveries') openDeliveryModal();
+      else openPickupModal();
+    }
+
+    function addRecipientField(initialVal = '') {
+      const container = document.getElementById('p-recipients-container');
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-1.5';
+      row.innerHTML = `
+        <input type="text" class="p-recipient-input flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white text-xs" placeholder="Ej: Jesús" value="${String(initialVal).replace(/"/g, '&quot;')}">
+        <button type="button" onclick="this.parentElement.remove()" class="bg-slate-800 hover:bg-rose-900 text-slate-300 hover:text-rose-200 px-2.5 py-1.5 rounded-xl text-xs font-bold" title="Quitar nombre">&times;</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function openPickupModal(editId = '') {
+      const select = document.getElementById('p-driver');
+      select.innerHTML = drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      document.getElementById('p-editId').value = editId;
+      const delBtn = document.getElementById('btn-modal-delete-pickup');
+      const recContainer = document.getElementById('p-recipients-container');
+      recContainer.innerHTML = '';
+
+      if (editId) {
+        const p = pickups.find(x => x.id === editId);
+        if (!p) return;
+        document.getElementById('pickupModalTitle').textContent = '✏️ Editar Retiro';
+        delBtn.classList.remove('hidden');
+        document.getElementById('p-sender').value = p.sender || '';
+        document.getElementById('p-phone').value = p.phone || '';
+        document.getElementById('p-pickup').value = p.pickup || '';
+        document.getElementById('p-deliverPlace').value = p.deliverPlace || '';
+        const list = Array.isArray(p.recipients) && p.recipients.length > 0 ? p.recipients : [''];
+        list.forEach(name => addRecipientField(name));
+        document.getElementById('p-date').value = p.date || getLocalISODate(0);
+        document.getElementById('p-time').value = p.time || '';
+        document.getElementById('p-driver').value = p.driverId || drivers[0]?.id;
+        document.getElementById('p-packages').value = p.packages || '1 paq M';
+        document.getElementById('p-notes').value = p.notes || '';
+      } else {
+        document.getElementById('pickupModalTitle').textContent = '📥 Agendar Retiro';
+        delBtn.classList.add('hidden');
+        document.getElementById('pickupForm').reset();
+        addRecipientField('');
+        document.getElementById('p-date').value = getLocalISODate(0);
+        document.getElementById('p-packages').value = '1 paq M';
+      }
+
+      document.getElementById('pickupModal').classList.remove('hidden');
+      document.getElementById('pickupModal').classList.add('flex');
+    }
+
+    function closePickupModal() {
+      document.getElementById('pickupModal').classList.add('hidden');
+      document.getElementById('pickupModal').classList.remove('flex');
+    }
+
+    function handlePickupSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('p-editId').value;
+      const existing = editId ? pickups.find(x => x.id === editId) : null;
+      const recipientInputs = Array.from(document.querySelectorAll('.p-recipient-input'));
+      const recipients = recipientInputs.map(inp => inp.value.trim()).filter(Boolean);
+
+      const record = {
+        id: existing ? existing.id : ('p' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+        sender: document.getElementById('p-sender').value.trim(),
+        phone: document.getElementById('p-phone').value.trim(),
+        pickup: document.getElementById('p-pickup').value.trim(),
+        deliverPlace: document.getElementById('p-deliverPlace').value.trim(),
+        recipients,
+        date: document.getElementById('p-date').value,
+        time: document.getElementById('p-time').value.trim(),
+        driverId: document.getElementById('p-driver').value,
+        packages: document.getElementById('p-packages').value.trim() || '1 paq',
+        pickedUp: existing ? existing.pickedUp : false,
+        notes: document.getElementById('p-notes').value.trim()
+      };
+
+      if (editId) pickups = pickups.map(x => x.id === editId ? record : x);
+      else pickups.unshift(record);
+
+      renderAllLists();
+      closePickupModal();
+      saveState();
+    }
+
+    function onDeliveryDateChange() {
+      const editId = document.getElementById('d-editId').value;
+      const origDate = document.getElementById('d-originalDate').value;
+      const newDate = document.getElementById('d-date').value;
+      const box = document.getElementById('surcharge-box');
+
+      if (editId && origDate && newDate && origDate !== newDate) {
+        box.classList.remove('hidden');
+        const surInput = document.getElementById('d-surcharge');
+        if (!surInput.value || Number(surInput.value) === 0) {
+          surInput.value = waSettings.surchargeDefault || 0;
+        }
+      } else if (!editId) {
+        box.classList.add('hidden');
+      }
+      updateDeliveryTotalPreview();
+    }
+
+    function toggleSurchargeInput() {
+      const checked = document.getElementById('d-applySurcharge').checked;
+      const row = document.getElementById('surcharge-amount-row');
+      row.classList.toggle('hidden', !checked);
+      if (checked) {
+        const surInput = document.getElementById('d-surcharge');
+        if (!surInput.value || Number(surInput.value) === 0) {
+          surInput.value = waSettings.surchargeDefault || 0;
+        }
+      }
+      updateDeliveryTotalPreview();
+    }
+
+    function updateDeliveryTotalPreview() {
+      const ship = Number(document.getElementById('d-shippingCost').value) || 0;
+      const prod = Number(document.getElementById('d-productCost').value) || 0;
+      const applySur = document.getElementById('d-applySurcharge').checked;
+      const sur = applySur ? (Number(document.getElementById('d-surcharge').value) || 0) : 0;
+      const total = ship + prod + sur;
+      document.getElementById('d-total-preview').textContent = '$' + total.toLocaleString('es-AR');
+    }
+
+    function openDeliveryModal(editId = '', prefillBatch = null) {
+      const select = document.getElementById('d-driver');
+      select.innerHTML = drivers.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      document.getElementById('d-editId').value = editId;
+      const delBtn = document.getElementById('btn-modal-delete-delivery');
+      const surBox = document.getElementById('surcharge-box');
+      const surRow = document.getElementById('surcharge-amount-row');
+
+      if (editId) {
+        const o = deliveries.find(x => x.id === editId);
+        if (!o) return;
+        document.getElementById('deliveryModalTitle').textContent = '✏️ Editar Entrega / Reprogramar';
+        document.getElementById('btn-save-another-del').classList.add('hidden');
+        document.getElementById('batch-banner').classList.add('hidden');
+        document.getElementById('batch-count-pill').classList.add('hidden');
+        delBtn.classList.remove('hidden');
+
+        activeBatchId = o.batchId || ('LOTE-' + Date.now().toString().slice(-4));
+        document.getElementById('d-client').value = o.client || '';
+        document.getElementById('d-phone').value = o.phone || '';
+        document.getElementById('d-dropoff').value = o.dropoff || '';
+        document.getElementById('d-packages').value = o.packages || '1 paq M';
+        document.getElementById('d-date').value = o.date || getLocalISODate(0);
+        document.getElementById('d-originalDate').value = o.date || getLocalISODate(0);
+        document.getElementById('d-time').value = o.time || '';
+        document.getElementById('d-driver').value = o.driverId || drivers[0]?.id;
+        document.getElementById('d-collectAt').value = o.collectAt || 'Al entregar';
+        document.getElementById('d-shippingCost').value = o.shippingCost || 0;
+        document.getElementById('d-productCost').value = o.productCost || '';
+        document.getElementById('d-method').value = o.method || 'Transferencia';
+        document.getElementById('d-paid').value = o.paid ? 'true' : 'false';
+        document.getElementById('d-originRef').value = o.originRef || '';
+        document.getElementById('d-notes').value = o.notes || '';
+
+        const existingSur = Number(o.surcharge || 0);
+        if (existingSur > 0) {
+          surBox.classList.remove('hidden');
+          document.getElementById('d-applySurcharge').checked = true;
+          surRow.classList.remove('hidden');
+          document.getElementById('d-surcharge').value = existingSur;
+        } else {
+          surBox.classList.add('hidden');
+          document.getElementById('d-applySurcharge').checked = false;
+          surRow.classList.add('hidden');
+          document.getElementById('d-surcharge').value = waSettings.surchargeDefault || 0;
+        }
+      } else if (prefillBatch) {
+        document.getElementById('deliveryModalTitle').textContent = '🚚 Anotar Entrega';
+        document.getElementById('btn-save-another-del').classList.remove('hidden');
+        delBtn.classList.add('hidden');
+        surBox.classList.add('hidden');
+        document.getElementById('d-applySurcharge').checked = false;
+        surRow.classList.add('hidden');
+        activeBatchId = prefillBatch.batchId;
+        batchItemCounter = prefillBatch.count + 1;
+
+        document.getElementById('deliveryForm').reset();
+        document.getElementById('d-date').value = prefillBatch.date || getLocalISODate(0);
+        document.getElementById('d-originalDate').value = prefillBatch.date || getLocalISODate(0);
+        document.getElementById('d-originRef').value = prefillBatch.originRef || '';
+        document.getElementById('d-packages').value = '1 paq M';
+        document.getElementById('batch-banner').classList.remove('hidden');
+        const pill = document.getElementById('batch-count-pill');
+        pill.textContent = `Destino #${batchItemCounter}`;
+        pill.classList.remove('hidden');
+      } else {
+        document.getElementById('deliveryModalTitle').textContent = '🚚 Anotar Entrega';
+        document.getElementById('btn-save-another-del').classList.remove('hidden');
+        delBtn.classList.add('hidden');
+        surBox.classList.add('hidden');
+        document.getElementById('d-applySurcharge').checked = false;
+        surRow.classList.add('hidden');
+        activeBatchId = 'LOTE-' + Date.now().toString().slice(-4);
+        batchItemCounter = 1;
+
+        document.getElementById('deliveryForm').reset();
+        document.getElementById('d-date').value = getLocalISODate(0);
+        document.getElementById('d-originalDate').value = getLocalISODate(0);
+        document.getElementById('d-packages').value = '1 paq M';
+        document.getElementById('batch-banner').classList.add('hidden');
+        document.getElementById('batch-count-pill').classList.add('hidden');
+      }
+
+      updateDeliveryTotalPreview();
+      document.getElementById('deliveryModal').classList.remove('hidden');
+      document.getElementById('deliveryModal').classList.add('flex');
+    }
+
+    function addAnotherFromDelivery(delId) {
+      const base = deliveries.find(o => o.id === delId);
+      if (!base) return;
+      if (!base.batchId) {
+        base.batchId = 'LOTE-' + Date.now().toString().slice(-4);
+        saveState();
+      }
+      const existingInBatch = deliveries.filter(o => o.batchId === base.batchId).length;
+      openDeliveryModal('', {
+        batchId: base.batchId,
+        date: base.date,
+        originRef: base.originRef,
+        count: existingInBatch
+      });
+    }
+
+    function closeDeliveryModal() {
+      document.getElementById('deliveryModal').classList.add('hidden');
+      document.getElementById('deliveryModal').classList.remove('flex');
+    }
+
+    function handleDeliverySubmit(e, keepOpen = false) {
+      e.preventDefault();
+      const form = document.getElementById('deliveryForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      const editId = document.getElementById('d-editId').value;
+      const existing = editId ? deliveries.find(x => x.id === editId) : null;
+      const applySur = document.getElementById('d-applySurcharge').checked;
+      const surcharge = applySur ? (Number(document.getElementById('d-surcharge').value) || 0) : 0;
+
+      const record = {
+        id: existing ? existing.id : ('del' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)),
+        batchId: activeBatchId,
+        client: document.getElementById('d-client').value.trim(),
+        phone: document.getElementById('d-phone').value.trim(),
+        dropoff: document.getElementById('d-dropoff').value.trim(),
+        packages: document.getElementById('d-packages').value.trim() || '1 paq',
+        date: document.getElementById('d-date').value,
+        time: document.getElementById('d-time').value.trim(),
+        driverId: document.getElementById('d-driver').value,
+        collectAt: document.getElementById('d-collectAt').value,
+        shippingCost: Number(document.getElementById('d-shippingCost').value) || 0,
+        productCost: Number(document.getElementById('d-productCost').value) || 0,
+        surcharge,
+        method: document.getElementById('d-method').value,
+        paid: document.getElementById('d-paid').value === 'true',
+        delivered: existing ? existing.delivered : false,
+        originRef: document.getElementById('d-originRef').value.trim(),
+        notes: document.getElementById('d-notes').value.trim()
+      };
+
+      if (editId) deliveries = deliveries.map(x => x.id === editId ? record : x);
+      else deliveries.unshift(record);
+
+      renderAllLists();
+      renderFinance();
+      saveState();
+
+      if (keepOpen && !editId) {
+        batchItemCounter += 1;
+        document.getElementById('d-client').value = '';
+        document.getElementById('d-phone').value = '';
+        document.getElementById('d-dropoff').value = '';
+        document.getElementById('d-packages').value = '1 paq M';
+        document.getElementById('d-shippingCost').value = '';
+        document.getElementById('d-productCost').value = '';
+        document.getElementById('d-notes').value = '';
+        document.getElementById('batch-banner').classList.remove('hidden');
+        const pill = document.getElementById('batch-count-pill');
+        pill.textContent = `Destino #${batchItemCounter}`;
+        pill.classList.remove('hidden');
+        updateDeliveryTotalPreview();
+        document.getElementById('d-client').focus();
+      } else {
+        form.reset();
+        closeDeliveryModal();
+      }
+    }
+
+    function submitAndAddAnotherDelivery() {
+      handleDeliverySubmit(new Event('submit'), true);
+    }
+
+    function openTeamModal() {
+      document.getElementById('teamModal').classList.remove('hidden');
+      document.getElementById('teamModal').classList.add('flex');
+    }
+
+    function closeTeamModal() {
+      document.getElementById('teamModal').classList.add('hidden');
+      document.getElementById('teamModal').classList.remove('flex');
+    }
+
+    function addDriver(e) {
+      e.preventDefault();
+      const name = document.getElementById('newDriverName').value.trim();
+      const color = document.getElementById('newDriverColor').value;
+      if (name) {
+        drivers.push({ id: 'd' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), name, color });
+        e.target.reset();
+        closeTeamModal();
+        renderDriverFilters();
+        renderTeam();
+        saveState();
+      }
+    }
+
+    function loadWaSettingsUI() {
+      document.getElementById('cfg-alias').value = waSettings.alias || '';
+      document.getElementById('cfg-holder').value = waSettings.holder || '';
+      document.getElementById('cfg-meetup-note').value = waSettings.meetupNote || '';
+      document.getElementById('cfg-tpl-delivery').value = waSettings.deliveryTemplate || DEFAULT_DELIVERY_TEMPLATE;
+      document.getElementById('cfg-tpl-pending').value = waSettings.pendingTemplate || DEFAULT_PENDING_TEMPLATE;
+      document.getElementById('cfg-tpl-pickup').value = waSettings.pickupTemplate || DEFAULT_PICKUP_TEMPLATE;
+    }
+
+    function resetTemplate(kind) {
+      if (kind === 'delivery') document.getElementById('cfg-tpl-delivery').value = DEFAULT_DELIVERY_TEMPLATE;
+      if (kind === 'pending') document.getElementById('cfg-tpl-pending').value = DEFAULT_PENDING_TEMPLATE;
+      if (kind === 'pickup') document.getElementById('cfg-tpl-pickup').value = DEFAULT_PICKUP_TEMPLATE;
+    }
+
+    function saveAllWaSettings() {
+      waSettings = {
+        ...waSettings,
+        alias: document.getElementById('cfg-alias').value.trim(),
+        holder: document.getElementById('cfg-holder').value.trim(),
+        meetupNote: document.getElementById('cfg-meetup-note').value.trim(),
+        deliveryTemplate: document.getElementById('cfg-tpl-delivery').value,
+        pendingTemplate: document.getElementById('cfg-tpl-pending').value,
+        pickupTemplate: document.getElementById('cfg-tpl-pickup').value
+      };
+      saveState();
+      const fb = document.getElementById('wa-cfg-feedback');
+      fb.classList.remove('hidden');
+      setTimeout(() => fb.classList.add('hidden'), 3500);
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['pickups', 'deliveries', 'finance', 'services', 'more'].forEach(t => {
+        document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
+        const navBtn = document.getElementById('nav-' + t);
+        navBtn.className = t === tab ? 'flex flex-col items-center gap-1 text-emerald-400' : 'flex flex-col items-center gap-1 text-slate-400';
+      });
+      const isListTab = (tab === 'pickups' || tab === 'deliveries');
+      document.getElementById('search-container').classList.toggle('hidden', !isListTab);
+      document.getElementById('driver-filters').classList.toggle('hidden', !isListTab);
+      document.getElementById('date-filter-bar').classList.toggle('hidden', !isListTab);
+
+      const fab = document.getElementById('fab-add-btn');
+      fab.classList.toggle('hidden', !isListTab);
+      if (tab === 'deliveries') {
+        fab.className = 'fixed bottom-20 right-4 sm:right-auto sm:ml-[375px] bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold w-14 h-14 rounded-full shadow-lg shadow-sky-500/30 flex items-center justify-center text-2xl transition transform active:scale-95 z-30';
+      } else {
+        fab.className = 'fixed bottom-20 right-4 sm:right-auto sm:ml-[375px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold w-14 h-14 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center text-2xl transition transform active:scale-95 z-30';
+      }
+
+      if (isListTab) renderAllLists();
+      if (tab === 'finance') renderFinance();
+      if (tab === 'services') renderServices();
+      if (tab === 'more') {
+        renderTeam();
+        loadWaSettingsUI();
+      }
+    }
+
+    function copyWhatsAppReport() {
+      let text = '*📦 RESUMEN DEL DÍA - ENTREGAOK*\n\n';
+      text += '*📥 RETIROS:*\n';
+      pickups.forEach((p, i) => {
+        const d = drivers.find(x => x.id === p.driverId)?.name || 'Sin asignar';
+        text += `${i + 1}. ${p.pickup} (${p.sender}) - ${d} | ${formatDisplayDate(p.date)} ${p.time || ''} [${p.pickedUp ? 'Retirado' : 'Pendiente'}]\n`;
+      });
+      text += '\n*🚚 ENTREGAS:*\n';
+      deliveries.forEach((o, i) => {
+        const d = drivers.find(x => x.id === o.driverId)?.name || 'Sin asignar';
+        const tot = getOrderTotal(o);
+        text += `${i + 1}. *${o.client}* ➡️ ${o.dropoff} (${d}) | $${tot.toLocaleString('es-AR')} (${o.paid ? 'Pagado' : 'Pendiente'})\n`;
+      });
+      navigator.clipboard.writeText(text).then(() => {
+        const fb = document.getElementById('copy-feedback');
+        fb.classList.remove('hidden');
+        setTimeout(() => fb.classList.add('hidden'), 3000);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const methodSel = document.getElementById('d-method');
+      const paidSel = document.getElementById('d-paid');
+      if (methodSel) {
+        methodSel.addEventListener('change', () => updateDeliveryTotalPreview());
+      }
+      if (paidSel) {
+        paidSel.addEventListener('change', () => updateDeliveryTotalPreview());
+      }
+    });
+
+    (async function initAuthAndApp() {
+      updateSyncUI();
+      renderSavedDeviceAccounts();
+      const savedSessionRaw = localStorage.getItem(ACTIVE_SESSION_KEY);
+      if (savedSessionRaw) {
+        try {
+          const savedUser = JSON.parse(savedSessionRaw);
+          if (savedUser && savedUser.uid && savedUser.email) {
+            await activateSession(savedUser, false);
+            return;
+          }
+        } catch {}
+      }
+      document.getElementById('authScreen').classList.remove('hidden');
+    })();
+  </script>
+</body>
+</html>
