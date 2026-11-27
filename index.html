@@ -19,6 +19,179 @@
       filter: invert(1);
       cursor: pointer;
     }
+
+    /* ==========================================
+       MODO BLANCO / ALTO CONTRASTE PARA EL SOL
+       ========================================== */
+    body.theme-light {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    body.theme-light input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0);
+    }
+    body.theme-light .max-w-md.bg-slate-900,
+    body.theme-light #authScreen > div {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.theme-light #authScreen {
+      background-color: #e2e8f0 !important;
+    }
+    body.theme-light header {
+      background-color: rgba(255, 255, 255, 0.97) !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.theme-light nav {
+      background-color: rgba(255, 255, 255, 0.98) !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    /* Textos claros -> oscuros legibles al sol */
+    body.theme-light .text-white { color: #0f172a !important; }
+    body.theme-light .text-slate-100 { color: #0f172a !important; }
+    body.theme-light .text-slate-200 { color: #1e293b !important; }
+    body.theme-light .text-slate-300 { color: #334155 !important; }
+    body.theme-light .text-slate-400 { color: #475569 !important; }
+    body.theme-light .text-slate-500 { color: #64748b !important; }
+
+    /* Mantener texto blanco en botones con fondo sólido oscuro/saturado */
+    body.theme-light .bg-green-600,
+    body.theme-light .bg-green-600 *,
+    body.theme-light .bg-rose-600,
+    body.theme-light .bg-slate-900.text-white {
+      color: #ffffff !important;
+    }
+    body.theme-light .bg-emerald-500,
+    body.theme-light .bg-sky-500,
+    body.theme-light .bg-amber-500,
+    body.theme-light .bg-rose-500 {
+      color: #052e16 !important;
+    }
+
+    /* Fondos de tarjetas e inputs */
+    body.theme-light .bg-slate-950 {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.theme-light .bg-slate-950\/95 {
+      background-color: rgba(255, 255, 255, 0.98) !important;
+    }
+    body.theme-light .bg-slate-900,
+    body.theme-light .bg-slate-900\/95,
+    body.theme-light .bg-slate-900\/90,
+    body.theme-light .bg-slate-900\/80,
+    body.theme-light .bg-slate-900\/40 {
+      background-color: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.theme-light .bg-slate-800,
+    body.theme-light .bg-slate-800\/90,
+    body.theme-light .bg-slate-800\/80,
+    body.theme-light .bg-slate-800\/70,
+    body.theme-light .bg-slate-800\/60,
+    body.theme-light .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+    body.theme-light .bg-slate-700,
+    body.theme-light .bg-slate-700\/60 {
+      background-color: #e2e8f0 !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    /* Bordes */
+    body.theme-light .border-slate-800,
+    body.theme-light .border-slate-800\/80,
+    body.theme-light .border-slate-700,
+    body.theme-light .border-slate-700\/90,
+    body.theme-light .border-slate-700\/80,
+    body.theme-light .border-slate-700\/70,
+    body.theme-light .border-slate-600 {
+      border-color: #cbd5e1 !important;
+    }
+
+    /* Inputs y placeholders */
+    body.theme-light input,
+    body.theme-light select,
+    body.theme-light textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #94a3b8 !important;
+    }
+    body.theme-light input::placeholder,
+    body.theme-light textarea::placeholder {
+      color: #64748b !important;
+    }
+
+    /* Acentos de colores con alto contraste en modo blanco */
+    body.theme-light .text-emerald-400,
+    body.theme-light .text-emerald-300 {
+      color: #047857 !important;
+    }
+    body.theme-light .text-sky-400,
+    body.theme-light .text-sky-300 {
+      color: #0369a1 !important;
+    }
+    body.theme-light .text-amber-400,
+    body.theme-light .text-amber-300,
+    body.theme-light .text-amber-200,
+    body.theme-light .text-amber-200\/90,
+    body.theme-light .text-amber-200\/80 {
+      color: #b45309 !important;
+    }
+    body.theme-light .text-rose-400,
+    body.theme-light .text-rose-300 {
+      color: #be123c !important;
+    }
+    body.theme-light .text-purple-300 {
+      color: #6d28d9 !important;
+    }
+
+    body.theme-light .bg-emerald-500\/10,
+    body.theme-light .bg-emerald-500\/15,
+    body.theme-light .bg-emerald-500\/20 {
+      background-color: #d1fae5 !important;
+      border-color: #6ee7b7 !important;
+    }
+    body.theme-light .bg-sky-500\/10,
+    body.theme-light .bg-sky-500\/15,
+    body.theme-light .bg-sky-500\/20 {
+      background-color: #e0f2fe !important;
+      border-color: #7dd3fc !important;
+    }
+    body.theme-light .bg-amber-500\/10,
+    body.theme-light .bg-amber-500\/15,
+    body.theme-light .bg-amber-500\/20 {
+      background-color: #fef3c7 !important;
+      border-color: #fcd34d !important;
+    }
+    body.theme-light .bg-rose-500\/10,
+    body.theme-light .bg-rose-950,
+    body.theme-light .bg-rose-950\/80,
+    body.theme-light .bg-rose-950\/70,
+    body.theme-light .bg-rose-950\/60 {
+      background-color: #ffe4e6 !important;
+      border-color: #fda4af !important;
+    }
+    body.theme-light .bg-purple-500\/20 {
+      background-color: #ede9fe !important;
+      border-color: #c4b5fd !important;
+    }
+    body.theme-light .bg-green-600\/20 {
+      background-color: #dcfce7 !important;
+      border-color: #86efac !important;
+      color: #15803d !important;
+    }
+
+    /* Botón filtro "Todos" activo en modo blanco */
+    body.theme-light #driver-filters button.bg-white {
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+    }
   </style>
 </head>
 <body class="text-slate-100 flex justify-center min-h-screen">
@@ -37,9 +210,14 @@
               <p class="text-[11px] text-slate-400">Cuenta independiente • Offline + Nube</p>
             </div>
           </div>
-          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-            v12 Agenda WA
-          </span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="toggleTheme()" id="authThemeToggleBtn" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-amber-300 border border-slate-700">
+              ☀️ Blanco
+            </button>
+            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              v13 Sol + Noche
+            </span>
+          </div>
         </div>
 
         <div class="space-y-1.5">
@@ -138,9 +316,14 @@
           </h1>
           <p class="text-xs text-slate-400">Retiros, entregas, tarifas y control de caja</p>
         </div>
-        <button onclick="openTeamModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition shrink-0">
-          <span>+ Persona</span>
-        </button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold px-2.5 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition" title="Cambiar entre Modo Blanco (Sol) y Modo Oscuro">
+            <span>☀️ Blanco</span>
+          </button>
+          <button onclick="openTeamModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition">
+            <span>+ Persona</span>
+          </button>
+        </div>
       </div>
 
       <div id="search-container" class="mb-3">
@@ -181,10 +364,23 @@
           </select>
         </div>
 
+        <!-- Filtros rápidos de estado (V13) -->
+        <div id="quick-status-filters" class="flex gap-1.5 overflow-x-auto no-scrollbar">
+          <button type="button" onclick="toggleQuickStatusFilter('unpaid')" id="qf-unpaid" class="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-amber-300 whitespace-nowrap transition">
+            ⏳ Solo impagos
+          </button>
+          <button type="button" onclick="toggleQuickStatusFilter('undone')" id="qf-undone" class="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-sky-300 whitespace-nowrap transition">
+            📦 Solo sin entregar
+          </button>
+        </div>
+
         <div class="flex items-center justify-between text-xs text-slate-400">
           <span id="active-date-label">Fecha: Hoy</span>
           <span id="orders-count" class="font-semibold text-slate-300">0 ítems</span>
         </div>
+
+        <!-- Resumen corto de la persona/repartidora del día (V13) -->
+        <div id="daily-driver-summary-card" class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3 space-y-2"></div>
       </div>
 
       <!-- VISTA 1: RETIROS -->
@@ -385,6 +581,17 @@
         </div>
 
         <h2 class="text-base font-bold text-white">Equipo y Personalización</h2>
+
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-white">🌓 Apariencia (Sol / Noche)</h3>
+            <p class="text-[11px] text-slate-400">Usá Modo Blanco de alto contraste cuando viajas de día al sol</p>
+          </div>
+          <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-700 shrink-0 text-xs">
+            <button type="button" id="more-theme-light" onclick="setTheme('light')" class="px-2.5 py-1.5 rounded-lg font-bold text-slate-300">☀️ Blanco</button>
+            <button type="button" id="more-theme-dark" onclick="setTheme('dark')" class="px-2.5 py-1.5 rounded-lg font-bold bg-emerald-500 text-slate-950">🌙 Oscuro</button>
+          </div>
+        </div>
 
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-2.5">
           <div class="flex items-center justify-between">
@@ -677,6 +884,9 @@
                 <span>Agendar</span>
               </label>
             </div>
+
+            <!-- Historial rápido del cliente + Aviso de deuda previa (V13) -->
+            <div id="d-client-history-box" class="hidden rounded-xl p-2.5 text-xs space-y-1.5 border"></div>
 
             <div class="grid grid-cols-3 gap-2">
               <div class="col-span-2">
@@ -1081,6 +1291,9 @@ Titular: {titular}
     let customDateValue = '';
     let hideCompletedEnabled = false;
     let hideCompletedScope = 'day';
+    let quickFilterUnpaid = false;
+    let quickFilterUndone = false;
+    let currentTheme = localStorage.getItem('re_theme_v13') || 'dark';
     let activeBatchId = null;
     let batchItemCounter = 1;
     let syncInterval = null;
@@ -1901,8 +2114,12 @@ Titular: {titular}
       const qNorm = normalizeText(rawQuery);
       const qDigits = rawQuery.replace(/\D/g, '');
 
+      updateQuickStatusButtonsUI();
+      renderDailyDriverSummary();
+
       const filteredPickups = pickups.filter(p => {
         if (!matchDateAndDriver(p)) return false;
+        if (quickFilterUndone && p.pickedUp) return false;
         if (isItemHiddenByCompletedFilter(p, 'pickup')) return false;
         if (!qNorm) return true;
         const driverName = drivers.find(d => d.id === p.driverId)?.name || '';
@@ -1917,6 +2134,8 @@ Titular: {titular}
 
       const filteredDeliveries = deliveries.filter(d => {
         if (!matchDateAndDriver(d)) return false;
+        if (quickFilterUnpaid && d.paid) return false;
+        if (quickFilterUndone && d.delivered) return false;
         if (isItemHiddenByCompletedFilter(d, 'delivery')) return false;
         if (!qNorm) return true;
         const driverName = drivers.find(x => x.id === d.driverId)?.name || '';
@@ -2847,6 +3066,195 @@ Titular: {titular}
       return normalizeText(name).trim().replace(/\s+/g, ' ');
     }
 
+
+    // ==========================================
+    // MODO BLANCO (SOL) Y MODO OSCURO (V13)
+    // ==========================================
+    function applyTheme(theme) {
+      currentTheme = theme === 'light' ? 'light' : 'dark';
+      localStorage.setItem('re_theme_v13', currentTheme);
+      document.body.classList.toggle('theme-light', currentTheme === 'light');
+
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', currentTheme === 'light' ? '#ffffff' : '#0f172a');
+
+      const btnText = currentTheme === 'light' ? '🌙 Oscuro' : '☀️ Blanco';
+      const headerBtn = document.getElementById('themeToggleBtn');
+      const authBtn = document.getElementById('authThemeToggleBtn');
+      if (headerBtn) headerBtn.innerHTML = `<span>${btnText}</span>`;
+      if (authBtn) authBtn.textContent = btnText;
+
+      const moreLight = document.getElementById('more-theme-light');
+      const moreDark = document.getElementById('more-theme-dark');
+      if (moreLight && moreDark) {
+        if (currentTheme === 'light') {
+          moreLight.className = 'px-2.5 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950';
+          moreDark.className = 'px-2.5 py-1.5 rounded-lg font-bold text-slate-300';
+        } else {
+          moreDark.className = 'px-2.5 py-1.5 rounded-lg font-bold bg-emerald-500 text-slate-950';
+          moreLight.className = 'px-2.5 py-1.5 rounded-lg font-bold text-slate-300';
+        }
+      }
+    }
+
+    function setTheme(theme) {
+      applyTheme(theme);
+    }
+
+    function toggleTheme() {
+      applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+    }
+
+    // ==========================================
+    // FILTROS RÁPIDOS DE ESTADO + RESUMEN DIARIO
+    // ==========================================
+    function updateQuickStatusButtonsUI() {
+      const btnUnpaid = document.getElementById('qf-unpaid');
+      const btnUndone = document.getElementById('qf-undone');
+      if (btnUnpaid) {
+        btnUnpaid.classList.toggle('hidden', currentTab === 'pickups');
+        btnUnpaid.className = quickFilterUnpaid
+          ? 'px-2.5 py-1 rounded-lg text-[11px] font-extrabold border border-amber-500 bg-amber-500 text-slate-950 whitespace-nowrap transition'
+          : 'px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-amber-300 whitespace-nowrap transition';
+      }
+      if (btnUndone) {
+        btnUndone.textContent = currentTab === 'pickups' ? '📥 Solo sin retirar' : '📦 Solo sin entregar';
+        btnUndone.className = quickFilterUndone
+          ? 'px-2.5 py-1 rounded-lg text-[11px] font-extrabold border border-sky-500 bg-sky-500 text-slate-950 whitespace-nowrap transition'
+          : 'px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-700 bg-slate-800 text-sky-300 whitespace-nowrap transition';
+      }
+    }
+
+    function toggleQuickStatusFilter(kind) {
+      if (kind === 'unpaid') quickFilterUnpaid = !quickFilterUnpaid;
+      if (kind === 'undone') quickFilterUndone = !quickFilterUndone;
+      updateQuickStatusButtonsUI();
+      renderAllLists();
+    }
+
+    function renderDailyDriverSummary() {
+      const box = document.getElementById('daily-driver-summary-card');
+      if (!box) return;
+
+      const todayStr = getLocalISODate(0);
+      const tomorrowStr = getLocalISODate(1);
+      const targetDate = (dateFilterMode === 'custom' && customDateValue)
+        ? customDateValue
+        : (dateFilterMode === 'tomorrow' ? tomorrowStr : (dateFilterMode === 'all' ? null : todayStr));
+
+      const targetDrivers = selectedDriver === 'all'
+        ? drivers
+        : drivers.filter(d => d.id === selectedDriver);
+
+      const dateTitle = targetDate ? formatDisplayDate(targetDate) : 'Todo el historial';
+
+      const rowsHtml = targetDrivers.map(d => {
+        const dPickups = pickups.filter(p => p.driverId === d.id && (!targetDate || p.date === targetDate));
+        const dDeliveries = deliveries.filter(o => o.driverId === d.id && (!targetDate || o.date === targetDate));
+        const pendingPickups = dPickups.filter(p => !p.pickedUp).length;
+        const pendingDeliveries = dDeliveries.filter(o => !o.delivered).length;
+
+        let cashCollected = 0;
+        let transferCollected = 0;
+        dDeliveries.filter(o => o.paid).forEach(o => {
+          const tot = getOrderTotal(o);
+          if (o.method === 'Efectivo') cashCollected += tot;
+          else transferCollected += tot;
+        });
+
+        return `
+          <div class="flex items-center justify-between gap-2 bg-slate-900/80 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-${d.color}-400 shrink-0"></span>
+                <span class="font-bold text-white truncate">${d.name}</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">
+                📥 ${dPickups.length} ret. (${pendingPickups} pend.) • 🚚 ${dDeliveries.length} ent. (${pendingDeliveries} pend.)
+              </p>
+            </div>
+            <div class="text-right shrink-0 text-[11px]">
+              <p class="font-bold text-amber-300">💵 $${cashCollected.toLocaleString('es-AR')}</p>
+              <p class="font-bold text-emerald-400">📲 $${transferCollected.toLocaleString('es-AR')}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      box.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-300">📊 Resumen rápido (${dateTitle})</span>
+          <span class="text-[10px] text-slate-400">Cobrado en mano vs. transf.</span>
+        </div>
+        <div class="space-y-1.5">${rowsHtml}</div>
+      `;
+    }
+
+    // ==========================================
+    // HISTORIAL RÁPIDO DEL CLIENTE + AVISO DEUDA
+    // ==========================================
+    function renderClientHistoryAndDebtAlert() {
+      const box = document.getElementById('d-client-history-box');
+      if (!box) return;
+
+      const rawName = document.getElementById('d-client').value.trim();
+      const rawPhone = document.getElementById('d-phone').value.trim();
+      const editId = document.getElementById('d-editId').value;
+
+      const nameKey = normalizeContactKey(rawName);
+      const phoneDigits = rawPhone.replace(/\D/g, '');
+
+      if ((!nameKey || nameKey.length < 2) && phoneDigits.length < 5) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      const pastOrders = deliveries.filter(o => {
+        if (editId && o.id === editId) return false;
+        const oNameKey = normalizeContactKey(o.client || '');
+        const oDigits = String(o.phone || '').replace(/\D/g, '');
+        const matchByName = nameKey.length >= 2 && oNameKey === nameKey;
+        const matchByPhone = phoneDigits.length >= 6 && oDigits === phoneDigits;
+        return matchByName || matchByPhone;
+      });
+
+      if (pastOrders.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      pastOrders.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const unpaidPast = pastOrders.filter(o => !o.paid);
+      const totalDebt = unpaidPast.reduce((acc, o) => acc + getOrderTotal(o), 0);
+      const lastOrder = pastOrders[0];
+      const lastSpot = [lastOrder.dropoff, lastOrder.notes].filter(Boolean).join(' • ');
+
+      let debtHtml = '';
+      if (unpaidPast.length > 0) {
+        const datesList = unpaidPast.map(o => `${formatDisplayDate(o.date)} ($${getOrderTotal(o).toLocaleString('es-AR')})`).join(', ');
+        debtHtml = `
+          <div class="bg-amber-500/20 border border-amber-500/50 rounded-lg px-2.5 py-2 text-amber-200 space-y-0.5">
+            <p class="font-extrabold text-amber-300 text-xs">⚠️ Cliente con deuda pendiente: $${totalDebt.toLocaleString('es-AR')}</p>
+            <p class="text-[11px]">Tiene ${unpaidPast.length} envío${unpaidPast.length === 1 ? '' : 's'} sin pagar (${datesList}).</p>
+          </div>
+        `;
+      }
+
+      box.className = unpaidPast.length > 0
+        ? 'rounded-xl p-2.5 text-xs space-y-2 border border-amber-500/40 bg-amber-500/10'
+        : 'rounded-xl p-2.5 text-xs space-y-1.5 border border-sky-500/30 bg-sky-500/10';
+
+      box.innerHTML = `
+        ${debtHtml}
+        <div class="flex items-center justify-between text-[11px] text-slate-300">
+          <span class="font-bold text-sky-300">📜 Historial: ${pastOrders.length} envío${pastOrders.length === 1 ? '' : 's'} previo${pastOrders.length === 1 ? '' : 's'}</span>
+          <span class="text-slate-400">Último: ${formatDisplayDate(lastOrder.date)}</span>
+        </div>
+        ${lastSpot ? `<p class="text-[11px] text-slate-300 truncate">📍 Último punto: <strong class="text-white">${lastSpot}</strong></p>` : ''}
+      `;
+      box.classList.remove('hidden');
+    }
+
     function bootstrapContactsFromHistory(shouldSave = true) {
       if (!Array.isArray(contacts)) contacts = [];
       const existingKeys = new Set(contacts.map(c => normalizeContactKey(c.name)));
@@ -2941,6 +3349,7 @@ Titular: {titular}
       document.getElementById('d-phone').value = c.phone;
       document.getElementById('d-client-suggestions').classList.add('hidden');
       updateDeliveryContactStatusUI();
+      renderClientHistoryAndDebtAlert();
     }
 
     function renderDeliveryContactSuggestions(showAllIfEmpty = false) {
@@ -3002,6 +3411,7 @@ Titular: {titular}
       }
       renderDeliveryContactSuggestions(false);
       updateDeliveryContactStatusUI();
+      renderClientHistoryAndDebtAlert();
     }
 
     function onDeliveryClientFocus() {
@@ -3025,10 +3435,12 @@ Titular: {titular}
         }
       }
       updateDeliveryContactStatusUI();
+      renderClientHistoryAndDebtAlert();
     }
 
     function onDeliveryPhoneInput() {
       updateDeliveryContactStatusUI();
+      renderClientHistoryAndDebtAlert();
     }
 
     function renderContactsMoreList() {
@@ -3209,6 +3621,7 @@ Titular: {titular}
 
       document.getElementById('d-client-suggestions').classList.add('hidden');
       updateDeliveryContactStatusUI();
+      renderClientHistoryAndDebtAlert();
       updateDeliveryTotalPreview();
       document.getElementById('deliveryModal').classList.remove('hidden');
       document.getElementById('deliveryModal').classList.add('flex');
@@ -3295,6 +3708,7 @@ Titular: {titular}
         pill.textContent = `Destino #${batchItemCounter}`;
         pill.classList.remove('hidden');
         updateDeliveryContactStatusUI();
+        renderClientHistoryAndDebtAlert();
         updateDeliveryTotalPreview();
         document.getElementById('d-client').focus();
       } else {
@@ -3424,6 +3838,7 @@ Titular: {titular}
     });
 
     (async function initAuthAndApp() {
+      applyTheme(currentTheme);
       updateSyncUI();
       renderSavedDeviceAccounts();
       const savedSessionRaw = localStorage.getItem(ACTIVE_SESSION_KEY);
