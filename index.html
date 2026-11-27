@@ -1188,14 +1188,28 @@
 
           <div class="bg-slate-800/50 border border-slate-700/70 p-3.5 rounded-2xl space-y-3">
             <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-xs text-slate-400 mb-1">Quien despacha</label>
-                <input type="text" id="p-sender" required placeholder="Ej: Tienda / Local" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+              <div class="relative">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs text-slate-400">Quien despacha</label>
+                  <button type="button" onclick="togglePickupContactPicker()" class="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-0.5" title="Buscar en contactos agendados">
+                    <span>🔍 Buscar</span>
+                  </button>
+                </div>
+                <input type="text" id="p-sender" required autocomplete="off" oninput="onPickupSenderInput()" onfocus="onPickupSenderFocus()" onblur="onPickupSenderBlur()" placeholder="Ej: Tienda / Local" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+                <div id="p-sender-suggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-950 border border-emerald-500/70 rounded-xl shadow-2xl z-40 max-h-48 overflow-y-auto divide-y divide-slate-800"></div>
               </div>
               <div>
                 <label class="block text-xs text-slate-400 mb-1">WhatsApp <span class="text-slate-500">(opcional)</span></label>
-                <input type="tel" id="p-phone" placeholder="Opcional: 1122334455" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                <input type="tel" id="p-phone" oninput="updatePickupContactStatusUI()" placeholder="Opcional: 1122334455" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
               </div>
+            </div>
+
+            <div id="p-contact-status-bar" class="hidden flex items-center justify-between gap-2 bg-slate-900/90 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-[11px]">
+              <span id="p-contact-status-text" class="text-emerald-300 font-medium"></span>
+              <label id="p-save-contact-label" class="hidden inline-flex items-center gap-1.5 cursor-pointer text-emerald-300 font-bold shrink-0">
+                <input type="checkbox" id="p-save-to-contacts" checked class="accent-emerald-500 w-3.5 h-3.5 rounded">
+                <span>Agendar</span>
+              </label>
             </div>
 
             <div>
@@ -3445,6 +3459,8 @@ Titular: {titular}
         document.getElementById('p-packages').value = '1 paq M';
       }
 
+      document.getElementById('p-sender-suggestions')?.classList.add('hidden');
+      updatePickupContactStatusUI();
       document.getElementById('pickupModal').classList.remove('hidden');
       document.getElementById('pickupModal').classList.add('flex');
     }
@@ -3478,6 +3494,12 @@ Titular: {titular}
 
       if (editId) pickups = pickups.map(x => x.id === editId ? record : x);
       else pickups.unshift(record);
+
+      const shouldAgendaPickup = document.getElementById('p-save-to-contacts')?.checked !== false;
+      if (record.sender && record.phone && shouldAgendaPickup) {
+        upsertContactRecord(record.sender, record.phone);
+        renderContactsMoreList();
+      }
 
       renderAllLists();
       closePickupModal();
@@ -3839,9 +3861,9 @@ Titular: {titular}
       if (!Array.isArray(contacts)) contacts = [];
       const existingKeys = new Set(contacts.map(c => normalizeContactKey(c.name)));
       let added = false;
-      deliveries.forEach(d => {
-        const name = (d.client || '').trim();
-        const phone = (d.phone || '').trim();
+      [...deliveries, ...pickups].forEach(item => {
+        const name = (item.client || item.sender || '').trim();
+        const phone = (item.phone || '').trim();
         const key = normalizeContactKey(name);
         if (name && phone && key && !existingKeys.has(key)) {
           contacts.push({
@@ -4021,6 +4043,145 @@ Titular: {titular}
     function onDeliveryPhoneInput() {
       updateDeliveryContactStatusUI();
       renderClientHistoryAndDebtAlert();
+    }
+
+    function updatePickupContactStatusUI() {
+      const nameVal = document.getElementById('p-sender')?.value.trim() || '';
+      const phoneVal = document.getElementById('p-phone')?.value.trim() || '';
+      const bar = document.getElementById('p-contact-status-bar');
+      const txt = document.getElementById('p-contact-status-text');
+      const lbl = document.getElementById('p-save-contact-label');
+      const chk = document.getElementById('p-save-to-contacts');
+      if (!bar || !txt || !lbl || !chk) return;
+
+      if (!nameVal && !phoneVal) {
+        bar.classList.add('hidden');
+        return;
+      }
+
+      const key = normalizeContactKey(nameVal);
+      const existing = contacts.find(c => normalizeContactKey(c.name) === key);
+
+      if (existing) {
+        bar.classList.remove('hidden');
+        if (phoneVal && phoneVal !== existing.phone) {
+          txt.textContent = `📇 En agenda (${existing.phone}) → se actualizará al guardar`;
+          txt.className = 'text-amber-300 font-medium';
+          lbl.classList.remove('hidden');
+          chk.checked = true;
+        } else {
+          txt.textContent = `✓ Contacto agendado: ${existing.name}`;
+          txt.className = 'text-emerald-300 font-medium';
+          lbl.classList.add('hidden');
+        }
+      } else if (nameVal && phoneVal) {
+        bar.classList.remove('hidden');
+        txt.textContent = '✨ Contacto nuevo con WhatsApp';
+        txt.className = 'text-emerald-300 font-medium';
+        lbl.classList.remove('hidden');
+        chk.checked = true;
+      } else if (nameVal && !phoneVal) {
+        bar.classList.remove('hidden');
+        txt.textContent = 'Sin WhatsApp cargado (si lo ponés, se agenda solo)';
+        txt.className = 'text-slate-400 font-medium';
+        lbl.classList.add('hidden');
+      } else {
+        bar.classList.add('hidden');
+      }
+    }
+
+    function selectPickupContact(contactId) {
+      const c = contacts.find(x => x.id === contactId);
+      if (!c) return;
+      document.getElementById('p-sender').value = c.name;
+      document.getElementById('p-phone').value = c.phone;
+      document.getElementById('p-sender-suggestions').classList.add('hidden');
+      updatePickupContactStatusUI();
+    }
+
+    function renderPickupContactSuggestions(showAllIfEmpty = false) {
+      const box = document.getElementById('p-sender-suggestions');
+      const rawQ = document.getElementById('p-sender')?.value.trim() || '';
+      const qNorm = normalizeContactKey(rawQ);
+      const qDigits = rawQ.replace(/\D/g, '');
+      if (!box) return;
+
+      if (contacts.length === 0) {
+        if (showAllIfEmpty) {
+          box.innerHTML = `<div class="px-3 py-2.5 text-[11px] text-slate-400">Todavía no tenés contactos agendados. Al anotar un nombre con su WhatsApp se guarda solo.</div>`;
+          box.classList.remove('hidden');
+        } else {
+          box.classList.add('hidden');
+        }
+        return;
+      }
+
+      const sorted = [...contacts].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+      const matches = !qNorm
+        ? (showAllIfEmpty ? sorted : [])
+        : sorted.filter(c => {
+            const cNameNorm = normalizeContactKey(c.name);
+            const cDigits = String(c.phone || '').replace(/\D/g, '');
+            return cNameNorm.includes(qNorm) || (qDigits.length >= 2 && cDigits.includes(qDigits));
+          });
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = matches.map(c => `
+        <button type="button" onpointerdown="event.preventDefault(); selectPickupContact('${c.id}')" class="w-full text-left px-3 py-2 hover:bg-emerald-500/15 active:bg-emerald-500/20 flex items-center justify-between gap-2 transition">
+          <span class="text-xs font-bold text-white truncate">${c.name}</span>
+          <span class="text-[11px] font-semibold text-emerald-400 shrink-0">📱 ${c.phone}</span>
+        </button>
+      `).join('');
+      box.classList.remove('hidden');
+    }
+
+    function togglePickupContactPicker() {
+      const box = document.getElementById('p-sender-suggestions');
+      if (!box.classList.contains('hidden')) {
+        box.classList.add('hidden');
+      } else {
+        document.getElementById('p-sender').focus();
+        renderPickupContactSuggestions(true);
+      }
+    }
+
+    function onPickupSenderInput() {
+      const rawVal = document.getElementById('p-sender').value;
+      const key = normalizeContactKey(rawVal);
+      const phoneInp = document.getElementById('p-phone');
+      const exact = contacts.find(c => normalizeContactKey(c.name) === key);
+      if (exact && !phoneInp.value.trim()) {
+        phoneInp.value = exact.phone;
+      }
+      renderPickupContactSuggestions(false);
+      updatePickupContactStatusUI();
+    }
+
+    function onPickupSenderFocus() {
+      if (document.getElementById('p-sender').value.trim()) {
+        renderPickupContactSuggestions(false);
+      }
+    }
+
+    function onPickupSenderBlur() {
+      setTimeout(() => {
+        const box = document.getElementById('p-sender-suggestions');
+        if (box) box.classList.add('hidden');
+      }, 180);
+
+      const key = normalizeContactKey(document.getElementById('p-sender').value);
+      const exact = contacts.find(c => normalizeContactKey(c.name) === key);
+      if (exact) {
+        document.getElementById('p-sender').value = exact.name;
+        if (!document.getElementById('p-phone').value.trim()) {
+          document.getElementById('p-phone').value = exact.phone;
+        }
+      }
+      updatePickupContactStatusUI();
     }
 
     function renderContactsMoreList() {
