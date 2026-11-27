@@ -1,552 +1,461 @@
-(() => {
-  const STORAGE_KEY = "entregas_retiros_v15_operativa";
+const STORAGE_KEY = "pedidos_entregas_retiros_v17";
 
-  function todayISO() {
-    const d = new Date();
-    const off = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - off * 60000);
-    return local.toISOString().slice(0, 10);
+function obtenerFechaHoyISO() {
+  const d = new Date();
+  const año = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, "0");
+  return `${año}-${mes}-${dia}`;
+}
+
+const pedidosIniciales = [
+  {
+    id: "demo-1",
+    tipo: "Entrega",
+    cliente: "Milagros zapas",
+    whatsapp: "",
+    facebookId: "",
+    lugar: "Morón",
+    fecha: obtenerFechaHoyISO(),
+    horario: "14hs",
+    repartidor: "Persona 1",
+    tamano: "1 paq M",
+    notas: "",
+    pendiente: true
+  },
+  {
+    id: "demo-2",
+    tipo: "Entrega",
+    cliente: "Anto vallejo",
+    whatsapp: "1155667788",
+    facebookId: "antovallejo.ok",
+    lugar: "Morón",
+    fecha: obtenerFechaHoyISO(),
+    horario: "14hs",
+    repartidor: "Persona 1",
+    tamano: "1 paq S",
+    notas: "",
+    pendiente: true
+  },
+  {
+    id: "demo-3",
+    tipo: "Entrega",
+    cliente: "Alaska showroom",
+    whatsapp: "",
+    facebookId: "",
+    lugar: "Paracone",
+    fecha: obtenerFechaHoyISO(),
+    horario: "14hs",
+    repartidor: "Persona 2",
+    tamano: "2 paq M",
+    notas: "",
+    pendiente: true
   }
+];
 
-  function formatDateAR(iso) {
-    if (!iso) return "";
-    const parts = iso.split("-");
-    if (parts.length !== 3) return iso;
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
+let pedidos = cargarPedidos();
 
-  function loadState() {
+function cargarPedidos() {
+  try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        return JSON.parse(raw);
-      } catch (e) {}
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidosIniciales));
+      return [...pedidosIniciales];
     }
-    const initial = {
-      clientas: [
-        { id: "c-1", nombre: "Tienda Central", whatsapp: "1122334455", zona: "Once" }
-      ],
-      entregas: [],
-      retiros: []
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-    return initial;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [...pedidosIniciales];
+  } catch (e) {
+    return [...pedidosIniciales];
   }
+}
 
-  let state = loadState();
+function guardarPedidosEnStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
+}
 
-  function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    updateStats();
-    refreshClientasDatalist();
-  }
+function normalizarFacebookId(valor) {
+  return (valor || "").trim().replace(/^@+/, "");
+}
 
-  // Normaliza teléfonos para wa.me (Argentina si empieza con 11 o sin código de país)
-  function cleanPhoneForWA(raw) {
-    const digits = (raw || "").replace(/\D/g, "");
-    if (!digits) return "";
-    if (digits.startsWith("54")) return digits;
-    if (digits.startsWith("0")) return "549" + digits.slice(1);
-    return "549" + digits;
-  }
+// Autocompletar datos de cliente si ya existe en pedidos anteriores
+function actualizarSugerenciasClientes() {
+  const datalist = document.getElementById("sugerenciasClientes");
+  if (!datalist) return;
+  datalist.innerHTML = "";
+  const unicos = new Map();
+  pedidos.forEach((p) => {
+    if (p.cliente && !unicos.has(p.cliente.toLowerCase())) {
+      unicos.set(p.cliente.toLowerCase(), p);
+    }
+  });
+  unicos.forEach((p) => {
+    const option = document.createElement("option");
+    option.value = p.cliente;
+    datalist.appendChild(option);
+  });
+}
 
-  // Aprende o actualiza automáticamente una clienta cuando se guarda una entrega o retiro
-  function learnClienta(nombre, whatsapp, zona = "") {
-    const cleanName = (nombre || "").trim();
-    const cleanPhone = (whatsapp || "").trim();
-    if (!cleanName || !cleanPhone) return;
-
-    const existing = state.clientas.find(
-      c => c.nombre.toLowerCase() === cleanName.toLowerCase()
-    );
-    if (existing) {
-      existing.whatsapp = cleanPhone;
-      if (zona && !existing.zona) existing.zona = zona.trim();
-    } else {
-      state.clientas.unshift({
-        id: "cli-" + Date.now(),
-        nombre: cleanName,
-        whatsapp: cleanPhone,
-        zona: (zona || "").trim()
-      });
+function autocompletarContactoCliente(nombreInputId, whatsappInputId, fbInputId) {
+  const nombre = document.getElementById(nombreInputId).value.trim().toLowerCase();
+  if (!nombre) return;
+  const existente = pedidos.find((p) => p.cliente && p.cliente.toLowerCase() === nombre);
+  if (existente) {
+    const waEl = document.getElementById(whatsappInputId);
+    const fbEl = document.getElementById(fbInputId);
+    if (waEl && !waEl.value.trim() && existente.whatsapp) {
+      waEl.value = existente.whatsapp;
+    }
+    if (fbEl && !fbEl.value.trim() && existente.facebookId) {
+      fbEl.value = existente.facebookId;
     }
   }
+}
 
-  // Autocompletado inteligente de WhatsApp al escribir o elegir clienta (tanto en Entrega como en Retiro)
-  function bindClientaAutocomplete(nameInputId, phoneInputId, hintId, zonaInputId = null) {
-    const nameEl = document.getElementById(nameInputId);
-    const phoneEl = document.getElementById(phoneInputId);
-    const hintEl = document.getElementById(hintId);
-    const zonaEl = zonaInputId ? document.getElementById(zonaInputId) : null;
+// Genera opciones de horarios cada 30 minutos (00:00 a 23:30)
+function poblarSelectoresHorarios() {
+  const selectDesde = document.getElementById("fbHoraDesde");
+  const selectHasta = document.getElementById("fbHoraHasta");
+  selectDesde.innerHTML = "";
+  selectHasta.innerHTML = "";
 
-    function syncMatch() {
-      const val = nameEl.value.trim().toLowerCase();
-      if (!val) {
-        hintEl.classList.add("hidden");
-        return;
-      }
-      const exact = state.clientas.find(c => c.nombre.toLowerCase() === val);
-      const partial = exact || state.clientas.find(c => c.nombre.toLowerCase().startsWith(val));
+  for (let totalMin = 0; totalMin < 24 * 60; totalMin += 30) {
+    const h24 = Math.floor(totalMin / 60);
+    const min = totalMin % 60;
+    const hhmm = `${String(h24).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
 
-      if (exact) {
-        phoneEl.value = exact.whatsapp;
-        if (zonaEl && !zonaEl.value && exact.zona) zonaEl.value = exact.zona;
-        hintEl.textContent = `✓ WhatsApp cargado: ${exact.whatsapp}`;
-        hintEl.classList.remove("hidden");
-      } else if (partial) {
-        hintEl.textContent = `Sugerencia: ${partial.nombre} (${partial.whatsapp})`;
-        hintEl.classList.remove("hidden");
-      } else {
-        hintEl.textContent = phoneEl.value.trim()
-          ? "Nueva clienta: se guardará su WhatsApp al confirmar"
-          : "Nueva clienta: agregá su WhatsApp para guardarla";
-        hintEl.classList.remove("hidden");
-      }
-    }
+    const periodo = h24 >= 12 ? "p.m." : "a.m.";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    const etiqueta = `${h12}:${String(min).padStart(2, "0")} ${periodo}`;
 
-    nameEl.addEventListener("input", syncMatch);
-    nameEl.addEventListener("change", syncMatch);
-    phoneEl.addEventListener("input", () => {
-      if (nameEl.value.trim() && phoneEl.value.trim()) {
-        const exists = state.clientas.some(
-          c => c.nombre.toLowerCase() === nameEl.value.trim().toLowerCase()
-        );
-        if (!exists) {
-          hintEl.textContent = "Se aprenderá este número para la próxima vez";
-          hintEl.classList.remove("hidden");
-        }
-      }
-    });
+    const optDesde = document.createElement("option");
+    optDesde.value = hhmm;
+    optDesde.textContent = etiqueta;
+
+    const optHasta = document.createElement("option");
+    optHasta.value = hhmm;
+    optHasta.textContent = etiqueta;
+
+    selectDesde.appendChild(optDesde);
+    selectHasta.appendChild(optHasta);
+  }
+}
+
+// Redondea la hora actual hacia arriba al próximo bloque de 30 min
+// Ejemplo: 12:34 -> Desde 13:00, Hasta 15:00
+function configurarHorariosSugeridos() {
+  const ahora = new Date();
+  let horas = ahora.getHours();
+  let minutos = ahora.getMinutes();
+
+  if (minutos > 30) {
+    horas += 1;
+    minutos = 0;
+  } else if (minutos > 0) {
+    minutos = 30;
   }
 
-  bindClientaAutocomplete("ent-clienta", "ent-whatsapp", "ent-clienta-hint", "ent-zona");
-  bindClientaAutocomplete("ret-clienta", "ret-whatsapp", "ret-clienta-hint", "ret-lugar");
+  const inicioTotalMin = ((horas * 60 + minutos) + (24 * 60)) % (24 * 60);
+  const finTotalMin = (inicioTotalMin + 120) % (24 * 60); // +2 horas por defecto
 
-  function refreshClientasDatalist() {
-    const dl = document.getElementById("datalist-clientas");
-    dl.innerHTML = state.clientas
-      .map(c => `<option value="${c.nombre}">${c.whatsapp}${c.zona ? " · " + c.zona : ""}</option>`)
-      .join("");
+  const formatoHHMM = (totalMin) => {
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  };
+
+  document.getElementById("fbHoraDesde").value = formatoHHMM(inicioTotalMin);
+  document.getElementById("fbHoraHasta").value = formatoHHMM(finTotalMin);
+}
+
+function formatearEtiquetaHora(hhmm) {
+  if (!hhmm || !hhmm.includes(":")) return hhmm || "";
+  const [hStr, mStr] = hhmm.split(":");
+  const h24 = parseInt(hStr, 10);
+  const min = parseInt(mStr, 10);
+  const periodo = h24 >= 12 ? "p.m." : "a.m.";
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${String(min).padStart(2, "0")} ${periodo}`;
+}
+
+function parsearHoraPedidoAMinutos(horarioTexto) {
+  if (!horarioTexto) return null;
+  const limpio = horarioTexto.toLowerCase().trim();
+  const match = limpio.match(/(\d{1,2})(?::(\d{2}))?/);
+  if (!match) return null;
+  let horas = parseInt(match[1], 10);
+  const minutos = match[2] ? parseInt(match[2], 10) : 0;
+  if (limpio.includes("pm") || limpio.includes("p.m") || (horas >= 1 && horas <= 7 && limpio.includes("hs"))) {
+    if (horas < 12) horas += 12;
+  }
+  return horas * 60 + minutos;
+}
+
+function hhmmAMinutos(hhmm) {
+  if (!hhmm || !hhmm.includes(":")) return null;
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function obtenerMencionFacebook(pedido) {
+  if (pedido.facebookId) {
+    return `@${normalizarFacebookId(pedido.facebookId)}`;
+  }
+  return `@${pedido.cliente}`;
+}
+
+function renderizarPedidosGuardados() {
+  const contenedor = document.getElementById("listaPedidosGuardados");
+  contenedor.innerHTML = "";
+
+  if (pedidos.length === 0) {
+    contenedor.innerHTML = `<p style="color: var(--text-muted); font-size: 0.88rem;">Todavía no hay retiros ni entregas cargados.</p>`;
+    return;
   }
 
-  function updateStats() {
-    document.getElementById("count-entregas").textContent = state.entregas.length;
-    document.getElementById("count-retiros").textContent = state.retiros.length;
-    document.getElementById("count-clientas").textContent = state.clientas.length;
-  }
+  pedidos.forEach((pedido) => {
+    const card = document.createElement("div");
+    card.className = "order-card";
 
-  // Navegación de pestañas
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".panel-view").forEach(p => p.classList.add("hidden"));
-      btn.classList.add("active");
-      document.getElementById("panel-" + btn.dataset.tab).classList.remove("hidden");
-    });
-  });
+    const badgeClase = pedido.tipo === "Retiro" ? "type-retiro" : "type-entrega";
+    const contactoPartes = [];
+    if (pedido.whatsapp) contactoPartes.push(`📱 WA: ${pedido.whatsapp}`);
+    if (pedido.facebookId) contactoPartes.push(`📘 FB: @${normalizarFacebookId(pedido.facebookId)}`);
 
-  // Apertura y cierre de modales
-  document.getElementById("open-entrega-modal").addEventListener("click", () => {
-    document.getElementById("ent-fecha").value = todayISO();
-    document.getElementById("ent-clienta-hint").classList.add("hidden");
-    document.getElementById("modal-entrega").classList.remove("hidden");
-  });
-
-  document.getElementById("open-retiro-modal").addEventListener("click", () => {
-    document.getElementById("ret-fecha").value = todayISO();
-    document.getElementById("ret-clienta-hint").classList.add("hidden");
-    resetRetiroNombres([""]);
-    document.getElementById("modal-retiro").classList.remove("hidden");
-  });
-
-  document.querySelectorAll("[data-close-modal]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.getElementById(btn.dataset.closeModal).classList.add("hidden");
-    });
-  });
-
-  // Lista dinámica de nombres en Retiros (+ Nombre)
-  const nombresContainer = document.getElementById("ret-nombres-container");
-
-  function addNombreInput(value = "") {
-    const row = document.createElement("div");
-    row.className = "name-chip-row";
-    row.innerHTML = `
-      <input type="text" class="ret-nombre-item" placeholder="Ej: Jesús" value="${value}" />
-      <button type="button" class="btn-remove-name" title="Quitar nombre">✕</button>
-    `;
-    row.querySelector(".btn-remove-name").addEventListener("click", () => {
-      if (nombresContainer.children.length > 1) {
-        row.remove();
-      } else {
-        row.querySelector("input").value = "";
-      }
-    });
-    nombresContainer.appendChild(row);
-  }
-
-  function resetRetiroNombres(list = [""]) {
-    nombresContainer.innerHTML = "";
-    list.forEach(n => addNombreInput(n));
-  }
-
-  document.getElementById("btn-add-nombre-retiro").addEventListener("click", () => {
-    addNombreInput("");
-  });
-
-  // Guardar Entrega
-  document.getElementById("form-entrega").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const clienta = document.getElementById("ent-clienta").value.trim();
-    const whatsapp = document.getElementById("ent-whatsapp").value.trim();
-    const zona = document.getElementById("ent-zona").value.trim();
-
-    learnClienta(clienta, whatsapp, zona);
-
-    state.entregas.unshift({
-      id: "ent-" + Date.now(),
-      clienta,
-      whatsapp,
-      zona,
-      origen: document.getElementById("ent-origen").value.trim(),
-      monto: Number(document.getElementById("ent-monto").value || 0),
-      pago: document.getElementById("ent-pago").value,
-      fecha: document.getElementById("ent-fecha").value,
-      horario: document.getElementById("ent-horario").value.trim(),
-      repartidor: document.getElementById("ent-repartidor").value,
-      cantidad: document.getElementById("ent-cantidad").value.trim(),
-      notas: document.getElementById("ent-notas").value.trim(),
-      estado: "pendiente"
-    });
-
-    saveState();
-    e.target.reset();
-    document.getElementById("modal-entrega").classList.add("hidden");
-    renderAll();
-  });
-
-  // Guardar Retiro
-  document.getElementById("form-retiro").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const clienta = document.getElementById("ret-clienta").value.trim();
-    const whatsapp = document.getElementById("ret-whatsapp").value.trim();
-    const lugar = document.getElementById("ret-lugar").value.trim();
-
-    learnClienta(clienta, whatsapp, lugar);
-
-    const nombres = Array.from(document.querySelectorAll(".ret-nombre-item"))
-      .map(inp => inp.value.trim())
-      .filter(Boolean);
-
-    state.retiros.unshift({
-      id: "ret-" + Date.now(),
-      clienta,
-      whatsapp,
-      lugar,
-      destino: document.getElementById("ret-destino").value.trim(),
-      nombres,
-      fecha: document.getElementById("ret-fecha").value,
-      horario: document.getElementById("ret-horario").value.trim(),
-      persona: document.getElementById("ret-persona").value,
-      cantidad: document.getElementById("ret-cantidad").value.trim(),
-      notas: document.getElementById("ret-notas").value.trim(),
-      estado: "pendiente"
-    });
-
-    saveState();
-    e.target.reset();
-    document.getElementById("modal-retiro").classList.add("hidden");
-    renderAll();
-  });
-
-  // Generar mensaje de WhatsApp para Entrega
-  function openWhatsAppEntrega(item) {
-    const lines = [
-      `📦 *ENTREGA AGENDADA*`,
-      `• *Clienta:* ${item.clienta}`,
-      `• *Entrega en:* ${item.zona}`,
-      item.origen ? `• *Retira desde:* ${item.origen}` : "",
-      `• *Fecha:* ${formatDateAR(item.fecha)}${item.horario ? " (" + item.horario + ")" : ""}`,
-      `• *Cantidad:* ${item.cantidad || "1 paq"}`,
-      item.monto > 0 ? `• *Cobro:* $${item.monto.toLocaleString("es-AR")} (${item.pago})` : `• *Pago:* ${item.pago}`,
-      `• *Repartidor:* ${item.repartidor}`,
-      item.notas ? `• *Referencia:* ${item.notas}` : ""
-    ].filter(Boolean);
-
-    const text = encodeURIComponent(lines.join("\n"));
-    const phone = cleanPhoneForWA(item.whatsapp);
-    const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
-    window.open(url, "_blank");
-  }
-
-  // Generar mensaje de WhatsApp para Retiro (con nombres con guion bajo _Nombre)
-  function openWhatsAppRetiro(item) {
-    const nombresFormateados = (item.nombres && item.nombres.length)
-      ? item.nombres.map(n => `• _${n}_`).join("\n")
-      : "• _Sin nombres cargados_";
-
-    const lines = [
-      `📥 *RETIRO AGENDADO*`,
-      `• *Clienta / Despacha:* ${item.clienta}`,
-      `• *Retirar en:* ${item.lugar}`,
-      `• *Entrega a (Zona):* ${item.destino}`,
-      `*Nombres para entregar:*`,
-      nombresFormateados,
-      `• *Fecha:* ${formatDateAR(item.fecha)}${item.horario ? " (" + item.horario + ")" : ""}`,
-      `• *Retira:* ${item.persona} · ${item.cantidad || "1 paq"}`,
-      item.notas ? `• *Referencia:* ${item.notas}` : ""
-    ].filter(Boolean);
-
-    const text = encodeURIComponent(lines.join("\n"));
-    const phone = cleanPhoneForWA(item.whatsapp);
-    const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
-    window.open(url, "_blank");
-  }
-
-  // Render de Entregas
-  function renderEntregas() {
-    const container = document.getElementById("list-entregas");
-    const q = document.getElementById("search-input").value.trim().toLowerCase();
-    const est = document.getElementById("filter-estado").value;
-    const rep = document.getElementById("filter-repartidor").value;
-
-    const filtered = state.entregas.filter(item => {
-      if (est !== "todos" && item.estado !== est) return false;
-      if (rep !== "todos" && item.repartidor !== rep) return false;
-      if (q) {
-        const blob = `${item.clienta} ${item.whatsapp} ${item.zona} ${item.origen} ${item.notas}`.toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
-      return true;
-    });
-
-    if (filtered.length === 0) {
-      container.innerHTML = `<div class="card-dark muted">No hay entregas cargadas con estos filtros. Tocá <strong>+ Agendar Entrega</strong> para empezar.</div>`;
-      return;
-    }
-
-    container.innerHTML = filtered.map(item => `
-      <article class="item-card stack">
-        <div class="row space-between">
-          <div>
-            <strong>${item.clienta}</strong>
-            ${item.whatsapp ? `<span class="muted small"> · 📱 ${item.whatsapp}</span>` : ""}
-          </div>
-          <span class="status-badge st-${item.estado}">${item.estado.replace("_", " ")}</span>
-        </div>
-
-        <div class="small">
-          📍 <strong>Entrega en:</strong> ${item.zona}
-          ${item.origen ? ` · <span class="muted">Desde: ${item.origen}</span>` : ""}
-        </div>
-
-        <div class="muted small">
-          📅 ${formatDateAR(item.fecha)} ${item.horario ? `(${item.horario})` : ""} · 🚚 ${item.repartidor} · 📦 ${item.cantidad}
-          ${item.monto > 0 ? ` · 💵 $${item.monto.toLocaleString("es-AR")} (${item.pago})` : ""}
-        </div>
-
-        ${item.notas ? `<div class="small muted">📝 ${item.notas}</div>` : ""}
-
-        <div class="row space-between">
-          <div class="row">
-            <button type="button" class="btn-whatsapp" data-wa-entrega="${item.id}">📲 Mandar WhatsApp</button>
-            <select class="small-btn" style="width:auto" data-st-entrega="${item.id}">
-              <option value="pendiente" ${item.estado === "pendiente" ? "selected" : ""}>Pendiente</option>
-              <option value="en_camino" ${item.estado === "en_camino" ? "selected" : ""}>En camino</option>
-              <option value="completado" ${item.estado === "completado" ? "selected" : ""}>Entregado</option>
-              <option value="cancelado" ${item.estado === "cancelado" ? "selected" : ""}>Cancelado</option>
-            </select>
-          </div>
-          <button type="button" class="btn-danger-soft" data-del-entrega="${item.id}">Eliminar</button>
-        </div>
-      </article>
-    `).join("");
-
-    container.querySelectorAll("[data-wa-entrega]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const item = state.entregas.find(x => x.id === btn.dataset.waEntrega);
-        if (item) openWhatsAppEntrega(item);
-      });
-    });
-
-    container.querySelectorAll("[data-st-entrega]").forEach(sel => {
-      sel.addEventListener("change", () => {
-        const item = state.entregas.find(x => x.id === sel.dataset.stEntrega);
-        if (item) {
-          item.estado = sel.value;
-          saveState();
-          renderEntregas();
-        }
-      });
-    });
-
-    container.querySelectorAll("[data-del-entrega]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (!confirm("¿Eliminar esta entrega?")) return;
-        state.entregas = state.entregas.filter(x => x.id !== btn.dataset.delEntrega);
-        saveState();
-        renderEntregas();
-      });
-    });
-  }
-
-  // Render de Retiros
-  function renderRetiros() {
-    const container = document.getElementById("list-retiros");
-    const q = document.getElementById("search-input").value.trim().toLowerCase();
-    const est = document.getElementById("filter-estado").value;
-    const rep = document.getElementById("filter-repartidor").value;
-
-    const filtered = state.retiros.filter(item => {
-      if (est !== "todos" && item.estado !== est) return false;
-      if (rep !== "todos" && item.persona !== rep) return false;
-      if (q) {
-        const namesStr = (item.nombres || []).join(" ");
-        const blob = `${item.clienta} ${item.whatsapp} ${item.lugar} ${item.destino} ${namesStr} ${item.notas}`.toLowerCase();
-        if (!blob.includes(q)) return false;
-      }
-      return true;
-    });
-
-    if (filtered.length === 0) {
-      container.innerHTML = `<div class="card-dark muted">No hay retiros cargados con estos filtros. Tocá <strong>+ Agendar Retiro</strong> para empezar.</div>`;
-      return;
-    }
-
-    container.innerHTML = filtered.map(item => `
-      <article class="item-card is-retiro stack">
-        <div class="row space-between">
-          <div>
-            <strong>${item.clienta}</strong>
-            ${item.whatsapp ? `<span class="muted small"> · 📱 ${item.whatsapp}</span>` : ""}
-          </div>
-          <span class="status-badge st-${item.estado}">${item.estado.replace("_", " ")}</span>
-        </div>
-
-        <div class="small">
-          📥 <strong>Retirar en:</strong> ${item.lugar} → 📍 <strong>Entrega a:</strong> ${item.destino}
-        </div>
-
-        ${item.nombres && item.nombres.length ? `
-          <div class="names-tags">
-            ${item.nombres.map(n => `<span class="name-tag">_${n}</span>`).join("")}
-          </div>
-        ` : ""}
-
-        <div class="muted small">
-          📅 ${formatDateAR(item.fecha)} ${item.horario ? `(${item.horario})` : ""} · 👤 ${item.persona} · 📦 ${item.cantidad}
-        </div>
-
-        ${item.notas ? `<div class="small muted">📝 ${item.notas}</div>` : ""}
-
-        <div class="row space-between">
-          <div class="row">
-            <button type="button" class="btn-whatsapp" data-wa-retiro="${item.id}">📲 Mandar WhatsApp</button>
-            <select class="small-btn" style="width:auto" data-st-retiro="${item.id}">
-              <option value="pendiente" ${item.estado === "pendiente" ? "selected" : ""}>Pendiente</option>
-              <option value="en_camino" ${item.estado === "en_camino" ? "selected" : ""}>En camino</option>
-              <option value="completado" ${item.estado === "completado" ? "selected" : ""}>Retirado</option>
-              <option value="cancelado" ${item.estado === "cancelado" ? "selected" : ""}>Cancelado</option>
-            </select>
-          </div>
-          <button type="button" class="btn-danger-soft" data-del-retiro="${item.id}">Eliminar</button>
-        </div>
-      </article>
-    `).join("");
-
-    container.querySelectorAll("[data-wa-retiro]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const item = state.retiros.find(x => x.id === btn.dataset.waRetiro);
-        if (item) openWhatsAppRetiro(item);
-      });
-    });
-
-    container.querySelectorAll("[data-st-retiro]").forEach(sel => {
-      sel.addEventListener("change", () => {
-        const item = state.retiros.find(x => x.id === sel.dataset.stRetiro);
-        if (item) {
-          item.estado = sel.value;
-          saveState();
-          renderRetiros();
-        }
-      });
-    });
-
-    container.querySelectorAll("[data-del-retiro]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (!confirm("¿Eliminar este retiro?")) return;
-        state.retiros = state.retiros.filter(x => x.id !== btn.dataset.delRetiro);
-        saveState();
-        renderRetiros();
-      });
-    });
-  }
-
-  // Agenda de Clientas WhatsApp
-  document.getElementById("form-add-clienta").addEventListener("submit", (e) => {
-    e.preventDefault();
-    learnClienta(
-      document.getElementById("cli-nombre").value,
-      document.getElementById("cli-whatsapp").value,
-      document.getElementById("cli-zona").value
-    );
-    saveState();
-    e.target.reset();
-    renderClientas();
-  });
-
-  function renderClientas() {
-    const container = document.getElementById("list-clientas");
-    if (state.clientas.length === 0) {
-      container.innerHTML = `<p class="muted small">Todavía no hay clientas guardadas.</p>`;
-      return;
-    }
-    container.innerHTML = state.clientas.map(c => `
-      <div class="item-card row space-between">
-        <div>
-          <strong>${c.nombre}</strong>
-          <div class="muted small">📱 ${c.whatsapp}${c.zona ? ` · 📍 ${c.zona}` : ""}</div>
-        </div>
-        <div class="row">
-          <a class="btn-whatsapp" style="text-decoration:none" target="_blank" href="https://wa.me/${cleanPhoneForWA(c.whatsapp)}">Chat</a>
-          <button type="button" class="btn-danger-soft" data-del-cli="${c.id}">Borrar</button>
-        </div>
+    card.innerHTML = `
+      <div class="order-top">
+        <strong>${pedido.cliente}</strong>
+        <span class="order-type ${badgeClase}">${pedido.tipo}</span>
       </div>
-    `).join("");
+      <div style="font-size: 0.85rem; color: #cbd5e1;">
+        📍 ${pedido.lugar || "Sin lugar"} ${pedido.horario ? `• 🕒 ${pedido.horario}` : ""} • 👤 ${pedido.repartidor || "Todo el equipo"}
+      </div>
+      ${contactoPartes.length > 0 ? `<div style="font-size: 0.8rem; color: #6ee7b7;">${contactoPartes.join("  |  ")}</div>` : `<div style="font-size: 0.78rem; color: var(--text-muted);">Sin WhatsApp ni ID Facebook cargados</div>`}
+    `;
+    contenedor.appendChild(card);
+  });
 
-    container.querySelectorAll("[data-del-cli]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.clientas = state.clientas.filter(x => x.id !== btn.dataset.delCli);
-        saveState();
-        renderClientas();
+  actualizarSugerenciasClientes();
+}
+
+function actualizarAvisoFacebook() {
+  const fechaSeleccionada = document.getElementById("fbFecha").value;
+  const repartidorSeleccionado = document.getElementById("fbRepartidor").value;
+  const lugarInput = document.getElementById("fbLugarEncuentro").value.trim();
+  const horaDesde = document.getElementById("fbHoraDesde").value;
+  const horaHasta = document.getElementById("fbHoraHasta").value;
+  const filtrarFranja = document.getElementById("fbFiltrarFranja").checked;
+  const soloPendientes = document.getElementById("fbSoloPendientes").checked;
+
+  const minDesde = hhmmAMinutos(horaDesde);
+  const minHasta = hhmmAMinutos(horaHasta);
+
+  const filtrados = pedidos.filter((p) => {
+    if (fechaSeleccionada && p.fecha && p.fecha !== fechaSeleccionada) return false;
+    if (repartidorSeleccionado && repartidorSeleccionado !== "Todo el equipo" && p.repartidor !== repartidorSeleccionado) return false;
+    if (soloPendientes && p.pendiente === false) return false;
+
+    if (filtrarFranja && minDesde !== null && minHasta !== null) {
+      const minPedido = parsearHoraPedidoAMinutos(p.horario);
+      if (minPedido !== null) {
+        if (minDesde <= minHasta) {
+          if (minPedido < minDesde || minPedido > minHasta) return false;
+        } else {
+          if (minPedido < minDesde && minPedido > minHasta) return false;
+        }
+      }
+    }
+    return true;
+  });
+
+  document.getElementById("fbContadorPersonas").textContent = filtrados.length;
+  const listaPersonas = document.getElementById("fbListaPersonas");
+  listaPersonas.innerHTML = "";
+
+  filtrados.forEach((pedido) => {
+    const item = document.createElement("div");
+    item.className = "detected-item";
+
+    const mencion = obtenerMencionFacebook(pedido);
+    const estadoFb = pedido.facebookId
+      ? `<span class="fb-loaded-badge">✓ ID FB cargado</span>`
+      : `<button type="button" class="chip-btn" data-id="${pedido.id}">+ @FB</button>`;
+
+    item.innerHTML = `
+      <div>
+        <div><strong>${mencion}</strong> <span style="font-size: 0.75rem; color: #93c5fd;">${pedido.tipo}</span></div>
+        <div class="detected-meta">${pedido.horario ? `Horario pedido: ${pedido.horario}` : "Sin horario"} ${pedido.lugar ? `• ${pedido.lugar}` : ""}</div>
+      </div>
+      ${estadoFb}
+    `;
+
+    const btnAddFb = item.querySelector("button[data-id]");
+    if (btnAddFb) {
+      btnAddFb.addEventListener("click", () => {
+        const nuevoId = prompt(`Ingresá el ID o usuario de Facebook para ${pedido.cliente}:`, "");
+        if (nuevoId && nuevoId.trim()) {
+          pedido.facebookId = normalizarFacebookId(nuevoId);
+          guardarPedidosEnStorage();
+          renderizarPedidosGuardados();
+          actualizarAvisoFacebook();
+        }
       });
-    });
-  }
+    }
 
-  // Filtros en tiempo real
-  ["search-input", "filter-estado", "filter-repartidor"].forEach(id => {
-    document.getElementById(id).addEventListener("input", renderAll);
-    document.getElementById(id).addEventListener("change", renderAll);
+    listaPersonas.appendChild(item);
   });
 
-  // Respaldo JSON
-  document.getElementById("btn-export-json").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `respaldo-entregas-retiros-v15-${todayISO()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const textoLugar = lugarInput ? ` en ${lugarInput}` : "";
+  const textoDesde = formatearEtiquetaHora(horaDesde);
+  const textoHasta = formatearEtiquetaHora(horaHasta);
+  const etiquetaDia = fechaSeleccionada === obtenerFechaHoyISO() ? "hoy" : `el ${fechaSeleccionada}`;
+
+  const mencionesLineas = filtrados.map((p) => obtenerMencionFacebook(p)).join("\n");
+  const textoFinal = `Buenas chicas, las menciono a todas a quienes tengo que entregarles y retirarles los pedidos ${etiquetaDia} de ${textoDesde} hasta las ${textoHasta}${textoLugar}:\n\n${mencionesLineas}`;
+
+  document.getElementById("fbTextoSalida").value = textoFinal;
+}
+
+// Eventos de formularios (Retiro y Entrega)
+document.getElementById("formRetiro").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nuevoRetiro = {
+    id: "ret-" + Date.now(),
+    tipo: "Retiro",
+    cliente: document.getElementById("retiroQuienDespacha").value.trim(),
+    whatsapp: document.getElementById("retiroWhatsapp").value.trim(),
+    facebookId: normalizarFacebookId(document.getElementById("retiroFacebookId").value),
+    lugar: document.getElementById("retiroLugar").value.trim(),
+    fecha: document.getElementById("retiroFecha").value || obtenerFechaHoyISO(),
+    horario: document.getElementById("retiroHorario").value.trim(),
+    repartidor: document.getElementById("retiroRepartidor").value,
+    tamano: document.getElementById("retiroTamano").value.trim(),
+    notas: document.getElementById("retiroNotas").value.trim(),
+    pendiente: true
+  };
+
+  pedidos.unshift(nuevoRetiro);
+  guardarPedidosEnStorage();
+  e.target.reset();
+  document.getElementById("retiroFecha").value = obtenerFechaHoyISO();
+  renderizarPedidosGuardados();
+  actualizarAvisoFacebook();
+});
+
+document.getElementById("formEntrega").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nuevaEntrega = {
+    id: "ent-" + Date.now(),
+    tipo: "Entrega",
+    cliente: document.getElementById("entregaCliente").value.trim(),
+    whatsapp: document.getElementById("entregaWhatsapp").value.trim(),
+    facebookId: normalizarFacebookId(document.getElementById("entregaFacebookId").value),
+    lugar: document.getElementById("entregaLugar").value.trim(),
+    fecha: document.getElementById("entregaFecha").value || obtenerFechaHoyISO(),
+    horario: document.getElementById("entregaHorario").value.trim(),
+    repartidor: document.getElementById("entregaRepartidor").value,
+    tamano: document.getElementById("entregaTamano").value.trim(),
+    notas: document.getElementById("entregaNotas").value.trim(),
+    pendiente: true
+  };
+
+  pedidos.unshift(nuevaEntrega);
+  guardarPedidosEnStorage();
+  e.target.reset();
+  document.getElementById("entregaFecha").value = obtenerFechaHoyISO();
+  renderizarPedidosGuardados();
+  actualizarAvisoFacebook();
+});
+
+// Autocompletar contacto al escribir un cliente conocido
+document.getElementById("retiroQuienDespacha").addEventListener("change", () => {
+  autocompletarContactoCliente("retiroQuienDespacha", "retiroWhatsapp", "retiroFacebookId");
+});
+
+document.getElementById("entregaCliente").addEventListener("change", () => {
+  autocompletarContactoCliente("entregaCliente", "entregaWhatsapp", "entregaFacebookId");
+});
+
+// Botones de navegación rápida
+document.getElementById("btnAbrirRetiro").addEventListener("click", () => {
+  document.getElementById("seccionRetiro").classList.remove("hidden");
+  document.getElementById("seccionRetiro").scrollIntoView({ behavior: "smooth" });
+});
+
+document.getElementById("btnAbrirEntrega").addEventListener("click", () => {
+  document.getElementById("seccionEntrega").classList.remove("hidden");
+  document.getElementById("seccionEntrega").scrollIntoView({ behavior: "smooth" });
+});
+
+document.getElementById("btnAbrirAvisoFb").addEventListener("click", () => {
+  document.getElementById("fbLugarEncuentro").value = "";
+  configurarHorariosSugeridos();
+  actualizarAvisoFacebook();
+  document.getElementById("seccionAvisoFb").scrollIntoView({ behavior: "smooth" });
+});
+
+document.getElementById("btnToggleRetiro").addEventListener("click", () => {
+  document.getElementById("seccionRetiro").classList.toggle("hidden");
+});
+
+document.getElementById("btnToggleEntrega").addEventListener("click", () => {
+  document.getElementById("seccionEntrega").classList.toggle("hidden");
+});
+
+document.getElementById("btnRefrescarHorarios").addEventListener("click", () => {
+  configurarHorariosSugeridos();
+  actualizarAvisoFacebook();
+});
+
+document.getElementById("btnLimpiarLugarFb").addEventListener("click", () => {
+  document.getElementById("fbLugarEncuentro").value = "";
+  actualizarAvisoFacebook();
+});
+
+document.querySelectorAll("#sugerenciasLugar .chip-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.getElementById("fbLugarEncuentro").value = btn.dataset.lugar;
+    actualizarAvisoFacebook();
   });
+});
 
-  function renderAll() {
-    updateStats();
-    refreshClientasDatalist();
-    renderEntregas();
-    renderRetiros();
-    renderClientas();
+document.getElementById("btnCopiarAvisoFb").addEventListener("click", async () => {
+  const texto = document.getElementById("fbTextoSalida").value;
+  try {
+    await navigator.clipboard.writeText(texto);
+    alert("Publicación copiada al portapapeles.");
+  } catch (e) {
+    const area = document.getElementById("fbTextoSalida");
+    area.select();
+    document.execCommand("copy");
+    alert("Publicación copiada.");
   }
+});
 
-  renderAll();
+document.getElementById("btnExportarJson").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(pedidos, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `pedidos-v17-${obtenerFechaHoyISO()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+["fbFecha", "fbRepartidor", "fbLugarEncuentro", "fbHoraDesde", "fbHoraHasta", "fbFiltrarFranja", "fbSoloPendientes"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", actualizarAvisoFacebook);
+  document.getElementById(id).addEventListener("change", actualizarAvisoFacebook);
+});
+
+// Inicialización
+(function init() {
+  const hoy = obtenerFechaHoyISO();
+  document.getElementById("retiroFecha").value = hoy;
+  document.getElementById("entregaFecha").value = hoy;
+  document.getElementById("fbFecha").value = hoy;
+  document.getElementById("fbLugarEncuentro").value = "";
+
+  poblarSelectoresHorarios();
+  configurarHorariosSugeridos();
+  renderizarPedidosGuardados();
+  actualizarAvisoFacebook();
 })();
