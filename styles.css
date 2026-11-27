@@ -1,0 +1,376 @@
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #090e17;
+  color: #f1f5f9;
+  padding: 14px;
+}
+
+#app {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.hidden { display: none !important; }
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-dot {
+  font-size: 24px;
+  background: #102a27;
+  border: 1px solid #10b981;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+h2, h3 { margin: 0; }
+
+.badge-v15 {
+  background: #10b981;
+  color: #052e16;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-pill {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.stat-pill strong {
+  display: block;
+  font-size: 18px;
+  color: #34d399;
+  margin-top: 2px;
+}
+
+.main-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tab-btn {
+  background: #111827;
+  color: #94a3b8;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #10b981;
+  color: #052e16;
+  border-color: #10b981;
+}
+
+.action-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 620px) {
+  .filter-bar { grid-template-columns: 1fr; }
+}
+
+.cards-stack, .stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stack-tight {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.row-tight {
+  display: flex;
+  gap: 6px;
+}
+
+.space-between { justify-content: space-between; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+.card-dark, .item-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.item-card {
+  border-left: 4px solid #10b981;
+}
+
+.item-card.is-retiro {
+  border-left-color: #38bdf8;
+}
+
+.field-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.field-label-text {
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.green-label, .green-text {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.auto-hint {
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+input, select {
+  width: 100%;
+  background: #0b1220;
+  border: 1px solid #293548;
+  color: #f8fafc;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: #10b981;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 11px 14px;
+}
+
+.btn-green {
+  background: #10b981;
+  color: #052e16;
+}
+
+.btn-green-outline {
+  background: #0f2922;
+  color: #34d399;
+  border: 1px solid #10b981;
+}
+
+.btn-secondary {
+  background: #1f2937;
+  color: #e2e8f0;
+}
+
+.btn-whatsapp {
+  background: #16a34a;
+  color: #ffffff;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.btn-danger-soft {
+  background: #3b1219;
+  color: #fda4af;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.btn-pill-green {
+  background: #10b981;
+  color: #052e16;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.small-btn {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.full-btn {
+  width: 100%;
+  padding: 13px;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+/* MODAL TIPO BOTTOM-SHEET / TARJETA OSCURA COMO LA CAPTURA */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 50;
+  overflow-y: auto;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: 520px;
+  background: #131b2b;
+  border: 1px solid #263248;
+  border-radius: 20px;
+  padding: 18px;
+  max-height: 94vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.modal-title {
+  color: #34d399;
+  font-size: 18px;
+}
+
+.close-x {
+  background: transparent;
+  color: #94a3b8;
+  font-size: 18px;
+  padding: 4px 8px;
+}
+
+.inner-group {
+  background: #0e1523;
+  border: 1px solid #233044;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.name-chip-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-remove-name {
+  background: #1e293b;
+  color: #cbd5e1;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.st-pendiente { background: #422006; color: #fde047; }
+.st-en_camino { background: #1e3a8a; color: #93c5fd; }
+.st-completado { background: #064e3b; color: #6ee7b7; }
+.st-cancelado { background: #4c0519; color: #fda4af; }
+
+.names-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.name-tag {
+  background: #0f2922;
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.muted { color: #94a3b8; }
+.small { font-size: 12.5px; }
+.tiny { font-size: 11.5px; margin: 2px 0 0; }
