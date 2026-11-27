@@ -1,16 +1,10 @@
 {
   "name": "EntregaOk - Retiros, Entregas y Caja",
   "short_name": "EntregaOk",
+  "description": "Gestión de retiros, entregas, roles de equipo y control de caja offline y en la nube.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "orientation": "portrait"
 }
