@@ -1,4 +1,4 @@
-const CACHE_NAME = 'entregaok-v12-fast';
+const CACHE_NAME = 'entregaok-v12-agenda';
 const ASSETS = [
   './',
   './index.html',
