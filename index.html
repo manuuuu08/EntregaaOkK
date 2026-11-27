@@ -113,17 +113,40 @@
       border-color: #cbd5e1 !important;
     }
 
-    /* Inputs y placeholders */
+    /* Inputs, selects y textareas en Modo Blanco (alta prioridad sobre .text-white) */
     body.theme-light input,
     body.theme-light select,
-    body.theme-light textarea {
+    body.theme-light textarea,
+    body.theme-light input.text-white,
+    body.theme-light select.text-white,
+    body.theme-light textarea.text-white,
+    body.theme-light input.text-slate-200,
+    body.theme-light select.text-slate-200,
+    body.theme-light textarea.text-slate-200 {
       background-color: #ffffff !important;
       color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
       border-color: #94a3b8 !important;
     }
     body.theme-light input::placeholder,
     body.theme-light textarea::placeholder {
       color: #64748b !important;
+      -webkit-text-fill-color: #64748b !important;
+    }
+    body.theme-light select option {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+    /* Asegurar texto oscuro legible en botones con fondo sólido claro/vibrante */
+    body.theme-light .bg-emerald-500,
+    body.theme-light .bg-emerald-500 *,
+    body.theme-light .bg-sky-500,
+    body.theme-light .bg-sky-500 *,
+    body.theme-light .bg-amber-500,
+    body.theme-light .bg-amber-500 *,
+    body.theme-light .bg-rose-500,
+    body.theme-light .bg-rose-500 * {
+      color: #0f172a !important;
     }
 
     /* Acentos de colores con alto contraste en modo blanco */
@@ -192,6 +215,371 @@
       color: #ffffff !important;
       border-color: #0f172a !important;
     }
+
+    /* ==========================================
+       PALETAS AESTHETIC / ESTILOS DE FONDO (V14)
+       ========================================== */
+    /* 1. 🌸 Rosa Pastel / Coquette */
+    body.theme-pink {
+      background: linear-gradient(180deg, #fce7f3 0%, #fdf2f8 100%) !important;
+    }
+    body.theme-pink .max-w-md.bg-slate-900,
+    body.theme-pink #authScreen > div {
+      background-color: #fff5f9 !important;
+      border-color: #fbcfe8 !important;
+    }
+    body.theme-pink #authScreen { background-color: #fce7f3 !important; }
+    body.theme-pink header,
+    body.theme-pink nav {
+      background-color: rgba(255, 245, 249, 0.97) !important;
+      border-color: #fbcfe8 !important;
+    }
+    body.theme-pink .bg-slate-950 { background-color: #fce7f3 !important; border-color: #f9a8d4 !important; }
+    body.theme-pink .bg-slate-900,
+    body.theme-pink .bg-slate-900\/90,
+    body.theme-pink .bg-slate-900\/80,
+    body.theme-pink .bg-slate-900\/40 { background-color: #fdf2f8 !important; border-color: #fbcfe8 !important; }
+    body.theme-pink .bg-slate-800,
+    body.theme-pink .bg-slate-800\/90,
+    body.theme-pink .bg-slate-800\/80,
+    body.theme-pink .bg-slate-800\/70,
+    body.theme-pink .bg-slate-800\/60,
+    body.theme-pink .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #f9a8d4 !important;
+      box-shadow: 0 2px 6px rgba(219, 39, 119, 0.08);
+    }
+    body.theme-pink .border-slate-800,
+    body.theme-pink .border-slate-700,
+    body.theme-pink .border-slate-700\/80 { border-color: #f9a8d4 !important; }
+    body.theme-pink .bg-emerald-500 { background-color: #ec4899 !important; color: #ffffff !important; }
+    body.theme-pink .bg-emerald-500 * { color: #ffffff !important; }
+    body.theme-pink .text-emerald-400,
+    body.theme-pink .text-emerald-300 { color: #be185d !important; }
+    body.theme-pink .bg-emerald-500\/10,
+    body.theme-pink .bg-emerald-500\/15,
+    body.theme-pink .bg-emerald-500\/20 { background-color: #fce7f3 !important; border-color: #f472b6 !important; }
+    body.theme-pink #nav-pickups.text-emerald-400,
+    body.theme-pink #nav-deliveries.text-emerald-400,
+    body.theme-pink #nav-finance.text-emerald-400,
+    body.theme-pink #nav-services.text-emerald-400,
+    body.theme-pink #nav-more.text-emerald-400 { color: #db2777 !important; }
+
+    /* 2. 💜 Lavanda Aesthetic */
+    body.theme-lavender {
+      background: linear-gradient(180deg, #ede9fe 0%, #f5f3ff 100%) !important;
+    }
+    body.theme-lavender .max-w-md.bg-slate-900,
+    body.theme-lavender #authScreen > div {
+      background-color: #faf8ff !important;
+      border-color: #ddd6fe !important;
+    }
+    body.theme-lavender #authScreen { background-color: #ede9fe !important; }
+    body.theme-lavender header,
+    body.theme-lavender nav {
+      background-color: rgba(250, 248, 255, 0.97) !important;
+      border-color: #ddd6fe !important;
+    }
+    body.theme-lavender .bg-slate-950 { background-color: #ede9fe !important; border-color: #c4b5fd !important; }
+    body.theme-lavender .bg-slate-900,
+    body.theme-lavender .bg-slate-900\/90,
+    body.theme-lavender .bg-slate-900\/80,
+    body.theme-lavender .bg-slate-900\/40 { background-color: #f5f3ff !important; border-color: #ddd6fe !important; }
+    body.theme-lavender .bg-slate-800,
+    body.theme-lavender .bg-slate-800\/90,
+    body.theme-lavender .bg-slate-800\/80,
+    body.theme-lavender .bg-slate-800\/70,
+    body.theme-lavender .bg-slate-800\/60,
+    body.theme-lavender .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #c4b5fd !important;
+      box-shadow: 0 2px 6px rgba(124, 58, 237, 0.08);
+    }
+    body.theme-lavender .border-slate-800,
+    body.theme-lavender .border-slate-700,
+    body.theme-lavender .border-slate-700\/80 { border-color: #c4b5fd !important; }
+    body.theme-lavender .bg-emerald-500 { background-color: #8b5cf6 !important; color: #ffffff !important; }
+    body.theme-lavender .bg-emerald-500 * { color: #ffffff !important; }
+    body.theme-lavender .text-emerald-400,
+    body.theme-lavender .text-emerald-300 { color: #6d28d9 !important; }
+    body.theme-lavender .bg-emerald-500\/10,
+    body.theme-lavender .bg-emerald-500\/15,
+    body.theme-lavender .bg-emerald-500\/20 { background-color: #ede9fe !important; border-color: #a78bfa !important; }
+    body.theme-lavender #nav-pickups.text-emerald-400,
+    body.theme-lavender #nav-deliveries.text-emerald-400,
+    body.theme-lavender #nav-finance.text-emerald-400,
+    body.theme-lavender #nav-services.text-emerald-400,
+    body.theme-lavender #nav-more.text-emerald-400 { color: #7c3aed !important; }
+
+    /* 3. 🌿 Verde Menta / Sage */
+    body.theme-mint {
+      background: linear-gradient(180deg, #dcfce7 0%, #f0fdf4 100%) !important;
+    }
+    body.theme-mint .max-w-md.bg-slate-900,
+    body.theme-mint #authScreen > div {
+      background-color: #f6fef9 !important;
+      border-color: #bbf7d0 !important;
+    }
+    body.theme-mint #authScreen { background-color: #dcfce7 !important; }
+    body.theme-mint header,
+    body.theme-mint nav {
+      background-color: rgba(246, 254, 249, 0.97) !important;
+      border-color: #bbf7d0 !important;
+    }
+    body.theme-mint .bg-slate-950 { background-color: #dcfce7 !important; border-color: #86efac !important; }
+    body.theme-mint .bg-slate-900,
+    body.theme-mint .bg-slate-900\/90,
+    body.theme-mint .bg-slate-900\/80,
+    body.theme-mint .bg-slate-900\/40 { background-color: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+    body.theme-mint .bg-slate-800,
+    body.theme-mint .bg-slate-800\/90,
+    body.theme-mint .bg-slate-800\/80,
+    body.theme-mint .bg-slate-800\/70,
+    body.theme-mint .bg-slate-800\/60,
+    body.theme-mint .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #86efac !important;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.08);
+    }
+    body.theme-mint .border-slate-800,
+    body.theme-mint .border-slate-700,
+    body.theme-mint .border-slate-700\/80 { border-color: #86efac !important; }
+    body.theme-mint .bg-emerald-500 { background-color: #10b981 !important; color: #ffffff !important; }
+    body.theme-mint .bg-emerald-500 * { color: #ffffff !important; }
+    body.theme-mint .text-emerald-400,
+    body.theme-mint .text-emerald-300 { color: #047857 !important; }
+    body.theme-mint .bg-emerald-500\/10,
+    body.theme-mint .bg-emerald-500\/15,
+    body.theme-mint .bg-emerald-500\/20 { background-color: #d1fae5 !important; border-color: #6ee7b7 !important; }
+
+    /* 4. 🍑 Durazno / Sunset Cálido */
+    body.theme-peach {
+      background: linear-gradient(180deg, #ffedd5 0%, #fff7ed 100%) !important;
+    }
+    body.theme-peach .max-w-md.bg-slate-900,
+    body.theme-peach #authScreen > div {
+      background-color: #fffaf5 !important;
+      border-color: #fed7aa !important;
+    }
+    body.theme-peach #authScreen { background-color: #ffedd5 !important; }
+    body.theme-peach header,
+    body.theme-peach nav {
+      background-color: rgba(255, 250, 245, 0.97) !important;
+      border-color: #fed7aa !important;
+    }
+    body.theme-peach .bg-slate-950 { background-color: #ffedd5 !important; border-color: #fdba74 !important; }
+    body.theme-peach .bg-slate-900,
+    body.theme-peach .bg-slate-900\/90,
+    body.theme-peach .bg-slate-900\/80,
+    body.theme-peach .bg-slate-900\/40 { background-color: #fff7ed !important; border-color: #fed7aa !important; }
+    body.theme-peach .bg-slate-800,
+    body.theme-peach .bg-slate-800\/90,
+    body.theme-peach .bg-slate-800\/80,
+    body.theme-peach .bg-slate-800\/70,
+    body.theme-peach .bg-slate-800\/60,
+    body.theme-peach .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #fdba74 !important;
+      box-shadow: 0 2px 6px rgba(234, 88, 12, 0.08);
+    }
+    body.theme-peach .border-slate-800,
+    body.theme-peach .border-slate-700,
+    body.theme-peach .border-slate-700\/80 { border-color: #fdba74 !important; }
+    body.theme-peach .bg-emerald-500 { background-color: #f97316 !important; color: #ffffff !important; }
+    body.theme-peach .bg-emerald-500 * { color: #ffffff !important; }
+    body.theme-peach .text-emerald-400,
+    body.theme-peach .text-emerald-300 { color: #c2410c !important; }
+    body.theme-peach .bg-emerald-500\/10,
+    body.theme-peach .bg-emerald-500\/15,
+    body.theme-peach .bg-emerald-500\/20 { background-color: #ffedd5 !important; border-color: #fb923c !important; }
+    body.theme-peach #nav-pickups.text-emerald-400,
+    body.theme-peach #nav-deliveries.text-emerald-400,
+    body.theme-peach #nav-finance.text-emerald-400,
+    body.theme-peach #nav-services.text-emerald-400,
+    body.theme-peach #nav-more.text-emerald-400 { color: #ea580c !important; }
+
+    /* 5. 🦋 Cielo Pastel / Baby Blue */
+    body.theme-sky {
+      background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%) !important;
+    }
+    body.theme-sky .max-w-md.bg-slate-900,
+    body.theme-sky #authScreen > div {
+      background-color: #f5fbff !important;
+      border-color: #bae6fd !important;
+    }
+    body.theme-sky #authScreen { background-color: #e0f2fe !important; }
+    body.theme-sky header,
+    body.theme-sky nav {
+      background-color: rgba(245, 251, 255, 0.97) !important;
+      border-color: #bae6fd !important;
+    }
+    body.theme-sky .bg-slate-950 { background-color: #e0f2fe !important; border-color: #7dd3fc !important; }
+    body.theme-sky .bg-slate-900,
+    body.theme-sky .bg-slate-900\/90,
+    body.theme-sky .bg-slate-900\/80,
+    body.theme-sky .bg-slate-900\/40 { background-color: #f0f9ff !important; border-color: #bae6fd !important; }
+    body.theme-sky .bg-slate-800,
+    body.theme-sky .bg-slate-800\/90,
+    body.theme-sky .bg-slate-800\/80,
+    body.theme-sky .bg-slate-800\/70,
+    body.theme-sky .bg-slate-800\/60,
+    body.theme-sky .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #7dd3fc !important;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.08);
+    }
+    body.theme-sky .border-slate-800,
+    body.theme-sky .border-slate-700,
+    body.theme-sky .border-slate-700\/80 { border-color: #7dd3fc !important; }
+    body.theme-sky .bg-emerald-500 { background-color: #0284c7 !important; color: #ffffff !important; }
+    body.theme-sky .bg-emerald-500 * { color: #ffffff !important; }
+    body.theme-sky .text-emerald-400,
+    body.theme-sky .text-emerald-300 { color: #0369a1 !important; }
+    body.theme-sky .bg-emerald-500\/10,
+    body.theme-sky .bg-emerald-500\/15,
+    body.theme-sky .bg-emerald-500\/20 { background-color: #e0f2fe !important; border-color: #38bdf8 !important; }
+    body.theme-sky #nav-pickups.text-emerald-400,
+    body.theme-sky #nav-deliveries.text-emerald-400,
+    body.theme-sky #nav-finance.text-emerald-400,
+    body.theme-sky #nav-services.text-emerald-400,
+    body.theme-sky #nav-more.text-emerald-400 { color: #0284c7 !important; }
+
+    /* 6. 🧸 Crema / Latte Aesthetic */
+    body.theme-cream {
+      background: linear-gradient(180deg, #f5efe6 0%, #faf7f2 100%) !important;
+    }
+    body.theme-cream .max-w-md.bg-slate-900,
+    body.theme-cream #authScreen > div {
+      background-color: #fdfbf7 !important;
+      border-color: #e6dccf !important;
+    }
+    body.theme-cream #authScreen { background-color: #f5efe6 !important; }
+    body.theme-cream header,
+    body.theme-cream nav {
+      background-color: rgba(253, 251, 247, 0.97) !important;
+      border-color: #e6dccf !important;
+    }
+    body.theme-cream .bg-slate-950 { background-color: #f5efe6 !important; border-color: #d6c7b2 !important; }
+    body.theme-cream .bg-slate-900,
+    body.theme-cream .bg-slate-900\/90,
+    body.theme-cream .bg-slate-900\/80,
+    body.theme-cream .bg-slate-900\/40 { background-color: #faf7f2 !important; border-color: #e6dccf !important; }
+    body.theme-cream .bg-slate-800,
+    body.theme-cream .bg-slate-800\/90,
+    body.theme-cream .bg-slate-800\/80,
+    body.theme-cream .bg-slate-800\/70,
+    body.theme-cream .bg-slate-800\/60,
+    body.theme-cream .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #d6c7b2 !important;
+      box-shadow: 0 2px 6px rgba(120, 90, 60, 0.08);
+    }
+    body.theme-cream .border-slate-800,
+    body.theme-cream .border-slate-700,
+    body.theme-cream .border-slate-700\/80 { border-color: #d6c7b2 !important; }
+    body.theme-cream .bg-emerald-500 { background-color: #9a6b43 !important; color: #ffffff !important; }
+    body.theme-cream .bg-emerald-500 * { color: #ffffff !important; }
+    body.theme-cream .text-emerald-400,
+    body.theme-cream .text-emerald-300 { color: #7c4f2b !important; }
+    body.theme-cream .bg-emerald-500\/10,
+    body.theme-cream .bg-emerald-500\/15,
+    body.theme-cream .bg-emerald-500\/20 { background-color: #f3e9dc !important; border-color: #c8ad8d !important; }
+    body.theme-cream #nav-pickups.text-emerald-400,
+    body.theme-cream #nav-deliveries.text-emerald-400,
+    body.theme-cream #nav-finance.text-emerald-400,
+    body.theme-cream #nav-services.text-emerald-400,
+    body.theme-cream #nav-more.text-emerald-400 { color: #8c5a32 !important; }
+
+    /* 7. 🍷 Berry / Borgoña Oscuro */
+    body.theme-berry {
+      background-color: #1f0a16 !important;
+    }
+    body.theme-berry .max-w-md.bg-slate-900,
+    body.theme-berry #authScreen > div {
+      background-color: #290e1d !important;
+      border-color: #5b1d3f !important;
+    }
+    body.theme-berry #authScreen { background-color: #1f0a16 !important; }
+    body.theme-berry header,
+    body.theme-berry nav {
+      background-color: rgba(41, 14, 29, 0.96) !important;
+      border-color: #5b1d3f !important;
+    }
+    body.theme-berry .bg-slate-950 { background-color: #1f0a16 !important; border-color: #5b1d3f !important; }
+    body.theme-berry .bg-slate-900,
+    body.theme-berry .bg-slate-900\/90,
+    body.theme-berry .bg-slate-900\/80,
+    body.theme-berry .bg-slate-900\/40 { background-color: #240c19 !important; border-color: #5b1d3f !important; }
+    body.theme-berry .bg-slate-800,
+    body.theme-berry .bg-slate-800\/90,
+    body.theme-berry .bg-slate-800\/80,
+    body.theme-berry .bg-slate-800\/70,
+    body.theme-berry .bg-slate-800\/60,
+    body.theme-berry .bg-slate-800\/50 { background-color: #361326 !important; border-color: #6b214a !important; }
+    body.theme-berry .bg-emerald-500 { background-color: #f43f5e !important; color: #ffffff !important; }
+    body.theme-berry .text-emerald-400,
+    body.theme-berry .text-emerald-300 { color: #fda4af !important; }
+    body.theme-berry .bg-emerald-500\/10,
+    body.theme-berry .bg-emerald-500\/15,
+    body.theme-berry .bg-emerald-500\/20 { background-color: rgba(244, 63, 94, 0.18) !important; border-color: rgba(251, 113, 133, 0.4) !important; }
+    body.theme-berry #nav-pickups.text-emerald-400,
+    body.theme-berry #nav-deliveries.text-emerald-400,
+    body.theme-berry #nav-finance.text-emerald-400,
+    body.theme-berry #nav-services.text-emerald-400,
+    body.theme-berry #nav-more.text-emerald-400 { color: #fb7185 !important; }
+
+    /* 8. 🌌 Galaxy / Noche Violeta */
+    body.theme-galaxy {
+      background-color: #130b24 !important;
+    }
+    body.theme-galaxy .max-w-md.bg-slate-900,
+    body.theme-galaxy #authScreen > div {
+      background-color: #1b1033 !important;
+      border-color: #432874 !important;
+    }
+    body.theme-galaxy #authScreen { background-color: #130b24 !important; }
+    body.theme-galaxy header,
+    body.theme-galaxy nav {
+      background-color: rgba(27, 16, 51, 0.96) !important;
+      border-color: #432874 !important;
+    }
+    body.theme-galaxy .bg-slate-950 { background-color: #130b24 !important; border-color: #432874 !important; }
+    body.theme-galaxy .bg-slate-900,
+    body.theme-galaxy .bg-slate-900\/90,
+    body.theme-galaxy .bg-slate-900\/80,
+    body.theme-galaxy .bg-slate-900\/40 { background-color: #170d2b !important; border-color: #432874 !important; }
+    body.theme-galaxy .bg-slate-800,
+    body.theme-galaxy .bg-slate-800\/90,
+    body.theme-galaxy .bg-slate-800\/80,
+    body.theme-galaxy .bg-slate-800\/70,
+    body.theme-galaxy .bg-slate-800\/60,
+    body.theme-galaxy .bg-slate-800\/50 { background-color: #261747 !important; border-color: #553592 !important; }
+    body.theme-galaxy .bg-emerald-500 { background-color: #c084fc !important; color: #130b24 !important; }
+    body.theme-galaxy .text-emerald-400,
+    body.theme-galaxy .text-emerald-300 { color: #d8b4fe !important; }
+    body.theme-galaxy .bg-emerald-500\/10,
+    body.theme-galaxy .bg-emerald-500\/15,
+    body.theme-galaxy .bg-emerald-500\/20 { background-color: rgba(192, 132, 252, 0.18) !important; border-color: rgba(216, 180, 254, 0.4) !important; }
+    body.theme-galaxy #nav-pickups.text-emerald-400,
+    body.theme-galaxy #nav-deliveries.text-emerald-400,
+    body.theme-galaxy #nav-finance.text-emerald-400,
+    body.theme-galaxy #nav-services.text-emerald-400,
+    body.theme-galaxy #nav-more.text-emerald-400 { color: #d8b4fe !important; }
+
+    /* 9. Fondo personalizado con foto/imagen propia */
+    body.has-custom-bg {
+      background-size: cover !important;
+      background-position: center !important;
+      background-attachment: fixed !important;
+    }
+    body.has-custom-bg .max-w-md.bg-slate-900 {
+      background-color: rgba(15, 23, 42, 0.86) !important;
+      backdrop-filter: blur(8px);
+    }
+    body.has-custom-bg.theme-light .max-w-md.bg-slate-900 {
+      background-color: rgba(255, 255, 255, 0.88) !important;
+      backdrop-filter: blur(8px);
+    }
   </style>
 </head>
 <body class="text-slate-100 flex justify-center min-h-screen">
@@ -211,11 +599,11 @@
             </div>
           </div>
           <div class="flex items-center gap-1.5">
-            <button type="button" onclick="toggleTheme()" id="authThemeToggleBtn" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-amber-300 border border-slate-700">
-              ☀️ Blanco
+            <button type="button" onclick="openThemeModal()" id="authThemeToggleBtn" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-800 text-amber-300 border border-slate-700">
+              🎨 Estilos
             </button>
             <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              v13 Sol + Noche
+              v14 Estilos
             </span>
           </div>
         </div>
@@ -317,8 +705,8 @@
           <p class="text-xs text-slate-400">Retiros, entregas, tarifas y control de caja</p>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
-          <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold px-2.5 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition" title="Cambiar entre Modo Blanco (Sol) y Modo Oscuro">
-            <span>☀️ Blanco</span>
+          <button type="button" onclick="openThemeModal()" id="themeToggleBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold px-2.5 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition" title="Elegir estilo, color o fondo">
+            <span>🎨 Estilo</span>
           </button>
           <button onclick="openTeamModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1 transition">
             <span>+ Persona</span>
@@ -582,15 +970,17 @@
 
         <h2 class="text-base font-bold text-white">Equipo y Personalización</h2>
 
-        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex items-center justify-between gap-3">
-          <div>
-            <h3 class="text-sm font-bold text-white">🌓 Apariencia (Sol / Noche)</h3>
-            <p class="text-[11px] text-slate-400">Usá Modo Blanco de alto contraste cuando viajas de día al sol</p>
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-white">🎨 Estilos y Colores de Fondo</h3>
+              <p class="text-[11px] text-slate-400">Elegí modo Sol, Noche, tonos pastel o subí tu propia foto de fondo</p>
+            </div>
+            <button type="button" onclick="openThemeModal()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold px-3 py-1.5 rounded-xl shrink-0 transition">
+              Elegir
+            </button>
           </div>
-          <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-700 shrink-0 text-xs">
-            <button type="button" id="more-theme-light" onclick="setTheme('light')" class="px-2.5 py-1.5 rounded-lg font-bold text-slate-300">☀️ Blanco</button>
-            <button type="button" id="more-theme-dark" onclick="setTheme('dark')" class="px-2.5 py-1.5 rounded-lg font-bold bg-emerald-500 text-slate-950">🌙 Oscuro</button>
-          </div>
+          <div id="more-theme-preview-grid" class="grid grid-cols-5 gap-1.5"></div>
         </div>
 
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl space-y-2.5">
@@ -1156,6 +1546,52 @@
             🗑️ Eliminar Contacto
           </button>
         </form>
+      </div>
+    </div>
+
+    <!-- MODAL GALERÍA DE ESTILOS Y FONDOS (V14) -->
+    <div id="themeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[90vh] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-base font-bold text-white">🎨 Estilos y Colores de Fondo</h3>
+            <p class="text-[11px] text-slate-400">Cada celular guarda su propio estilo favorito</p>
+          </div>
+          <button onclick="closeThemeModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Clásicos (Sol y Noche)</p>
+          <div id="theme-grid-classic" class="grid grid-cols-2 gap-2"></div>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tonos Pastel / Aesthetic (Claros al sol)</p>
+          <div id="theme-grid-pastel" class="grid grid-cols-2 gap-2"></div>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Noche con Color</p>
+          <div id="theme-grid-dark" class="grid grid-cols-2 gap-2"></div>
+        </div>
+
+        <div class="bg-slate-800/80 border border-slate-700 p-3.5 rounded-2xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-white">🖼️ Foto o Fondo de Galería</p>
+              <p class="text-[11px] text-slate-400">Poné una foto tuya o fondo descargado detrás de la app</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <label class="flex-1 cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-2 px-3 rounded-xl text-xs text-center transition">
+              <span>📷 Elegir foto</span>
+              <input type="file" accept="image/*" onchange="handleCustomBgUpload(event)" class="hidden">
+            </label>
+            <button type="button" id="btn-remove-custom-bg" onclick="removeCustomBg()" class="hidden bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold px-3 py-2 rounded-xl text-xs transition">
+              Quitar foto
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3068,41 +3504,155 @@ Titular: {titular}
 
 
     // ==========================================
-    // MODO BLANCO (SOL) Y MODO OSCURO (V13)
+    // GALERÍA DE ESTILOS Y FONDOS AESTHETIC (V14)
     // ==========================================
-    function applyTheme(theme) {
-      currentTheme = theme === 'light' ? 'light' : 'dark';
-      localStorage.setItem('re_theme_v13', currentTheme);
-      document.body.classList.toggle('theme-light', currentTheme === 'light');
+    const APP_THEMES = [
+      { id: 'dark', group: 'classic', name: '🌙 Noche Oscuro', desc: 'Clásico descansado', isLight: false, swatch: 'linear-gradient(135deg, #0f172a 55%, #10b981 100%)', meta: '#0f172a' },
+      { id: 'light', group: 'classic', name: '☀️ Blanco Sol', desc: 'Alto contraste al sol', isLight: true, swatch: 'linear-gradient(135deg, #ffffff 55%, #10b981 100%)', meta: '#ffffff' },
+      { id: 'pink', group: 'pastel', name: '🌸 Rosa Coquette', desc: 'Rosa pastel y blanco', isLight: true, swatch: 'linear-gradient(135deg, #fce7f3 50%, #ec4899 100%)', meta: '#fce7f3' },
+      { id: 'lavender', group: 'pastel', name: '💜 Lavanda Soft', desc: 'Lila suave aesthetic', isLight: true, swatch: 'linear-gradient(135deg, #ede9fe 50%, #8b5cf6 100%)', meta: '#ede9fe' },
+      { id: 'mint', group: 'pastel', name: '🌿 Verde Menta', desc: 'Sage fresco y claro', isLight: true, swatch: 'linear-gradient(135deg, #dcfce7 50%, #10b981 100%)', meta: '#dcfce7' },
+      { id: 'peach', group: 'pastel', name: '🍑 Durazno Warm', desc: 'Naranja pastel cálido', isLight: true, swatch: 'linear-gradient(135deg, #ffedd5 50%, #f97316 100%)', meta: '#ffedd5' },
+      { id: 'sky', group: 'pastel', name: '🦋 Cielo Pastel', desc: 'Celeste nube claro', isLight: true, swatch: 'linear-gradient(135deg, #e0f2fe 50%, #0284c7 100%)', meta: '#e0f2fe' },
+      { id: 'cream', group: 'pastel', name: '🧸 Crema Latte', desc: 'Beige café aesthetic', isLight: true, swatch: 'linear-gradient(135deg, #f5efe6 50%, #9a6b43 100%)', meta: '#f5efe6' },
+      { id: 'berry', group: 'dark', name: '🍷 Berry Noche', desc: 'Borgoña y rosa neón', isLight: false, swatch: 'linear-gradient(135deg, #290e1d 50%, #f43f5e 100%)', meta: '#290e1d' },
+      { id: 'galaxy', group: 'dark', name: '🌌 Galaxy Violeta', desc: 'Morado nocturno', isLight: false, swatch: 'linear-gradient(135deg, #1b1033 50%, #c084fc 100%)', meta: '#1b1033' }
+    ];
 
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (metaTheme) metaTheme.setAttribute('content', currentTheme === 'light' ? '#ffffff' : '#0f172a');
+    let customBgDataUrl = localStorage.getItem('re_custom_bg_v14') || '';
 
-      const btnText = currentTheme === 'light' ? '🌙 Oscuro' : '☀️ Blanco';
-      const headerBtn = document.getElementById('themeToggleBtn');
-      const authBtn = document.getElementById('authThemeToggleBtn');
-      if (headerBtn) headerBtn.innerHTML = `<span>${btnText}</span>`;
-      if (authBtn) authBtn.textContent = btnText;
-
-      const moreLight = document.getElementById('more-theme-light');
-      const moreDark = document.getElementById('more-theme-dark');
-      if (moreLight && moreDark) {
-        if (currentTheme === 'light') {
-          moreLight.className = 'px-2.5 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950';
-          moreDark.className = 'px-2.5 py-1.5 rounded-lg font-bold text-slate-300';
-        } else {
-          moreDark.className = 'px-2.5 py-1.5 rounded-lg font-bold bg-emerald-500 text-slate-950';
-          moreLight.className = 'px-2.5 py-1.5 rounded-lg font-bold text-slate-300';
-        }
+    function applyCustomBg() {
+      const rmBtn = document.getElementById('btn-remove-custom-bg');
+      if (customBgDataUrl) {
+        document.body.classList.add('has-custom-bg');
+        document.body.style.backgroundImage = `url("${customBgDataUrl}")`;
+        if (rmBtn) rmBtn.classList.remove('hidden');
+      } else {
+        document.body.classList.remove('has-custom-bg');
+        document.body.style.backgroundImage = '';
+        if (rmBtn) rmBtn.classList.add('hidden');
       }
     }
 
-    function setTheme(theme) {
-      applyTheme(theme);
+    function applyTheme(themeId) {
+      const found = APP_THEMES.find(t => t.id === themeId) || APP_THEMES[0];
+      currentTheme = found.id;
+      localStorage.setItem('re_theme_v13', currentTheme);
+
+      APP_THEMES.forEach(t => document.body.classList.remove('theme-' + t.id));
+      document.body.classList.remove('theme-light');
+
+      if (found.isLight) {
+        document.body.classList.add('theme-light');
+      }
+      if (found.id !== 'dark' && found.id !== 'light') {
+        document.body.classList.add('theme-' + found.id);
+      }
+
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', found.meta);
+
+      const headerBtn = document.getElementById('themeToggleBtn');
+      const authBtn = document.getElementById('authThemeToggleBtn');
+      const shortIcon = found.name.split(' ')[0];
+      if (headerBtn) headerBtn.innerHTML = `<span>${shortIcon} Estilo</span>`;
+      if (authBtn) authBtn.textContent = `${shortIcon} Estilo`;
+
+      applyCustomBg();
+      renderThemeSelectors();
+    }
+
+    function setTheme(themeId) {
+      applyTheme(themeId);
     }
 
     function toggleTheme() {
-      applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+      openThemeModal();
+    }
+
+    function openThemeModal() {
+      renderThemeSelectors();
+      document.getElementById('themeModal').classList.remove('hidden');
+      document.getElementById('themeModal').classList.add('flex');
+    }
+
+    function closeThemeModal() {
+      document.getElementById('themeModal').classList.add('hidden');
+      document.getElementById('themeModal').classList.remove('flex');
+    }
+
+    function renderThemeSelectors() {
+      const renderGroup = (groupName, containerId) => {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = APP_THEMES.filter(t => t.group === groupName).map(t => {
+          const active = currentTheme === t.id;
+          return `
+            <button type="button" onclick="setTheme('${t.id}')" class="text-left p-2.5 rounded-2xl border transition flex items-center gap-2.5 ${active ? 'border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500/40' : 'border-slate-700 bg-slate-800/80 hover:bg-slate-800'}">
+              <span class="w-8 h-8 rounded-xl shrink-0 border border-black/15 shadow-inner" style="background: ${t.swatch};"></span>
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-white truncate">${t.name}</p>
+                <p class="text-[10px] text-slate-400 truncate">${active ? '✓ Activo' : t.desc}</p>
+              </div>
+            </button>
+          `;
+        }).join('');
+      };
+
+      renderGroup('classic', 'theme-grid-classic');
+      renderGroup('pastel', 'theme-grid-pastel');
+      renderGroup('dark', 'theme-grid-dark');
+
+      const previewGrid = document.getElementById('more-theme-preview-grid');
+      if (previewGrid) {
+        previewGrid.innerHTML = APP_THEMES.map(t => {
+          const active = currentTheme === t.id;
+          return `
+            <button type="button" onclick="setTheme('${t.id}')" title="${t.name}" class="h-10 rounded-xl border flex items-center justify-center text-sm transition ${active ? 'border-emerald-500 ring-2 ring-emerald-500/50 scale-105' : 'border-slate-700 opacity-85 hover:opacity-100'}" style="background: ${t.swatch};">
+              <span>${t.name.split(' ')[0]}</span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    function handleCustomBgUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 1080;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL('image/jpeg', 0.78);
+          try {
+            localStorage.setItem('re_custom_bg_v14', compressed);
+            customBgDataUrl = compressed;
+            applyCustomBg();
+          } catch (err) {
+            alert('La imagen es muy pesada para el navegador. Probá con otra más liviana.');
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeCustomBg() {
+      localStorage.removeItem('re_custom_bg_v14');
+      customBgDataUrl = '';
+      applyCustomBg();
     }
 
     // ==========================================

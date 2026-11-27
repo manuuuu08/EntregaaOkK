@@ -1,4 +1,4 @@
-const CACHE_NAME = 'entregaok-v13-sol-noche';
+const CACHE_NAME = 'entregaok-v14-estilos-aesthetic';
 const ASSETS = [
   './',
   './index.html',
